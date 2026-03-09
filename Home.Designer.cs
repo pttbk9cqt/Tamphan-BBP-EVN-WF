@@ -50,7 +50,7 @@ namespace Tamphan_BBP_EVN_WF
             this.panel_account_lẻ.Controls.Add(this.label1);
             this.panel_account_lẻ.Location = new System.Drawing.Point(58, 38);
             this.panel_account_lẻ.Name = "panel_account_lẻ";
-            this.panel_account_lẻ.Size = new System.Drawing.Size(251, 57);
+            this.panel_account_lẻ.Size = new System.Drawing.Size(251, 60);
             this.panel_account_lẻ.TabIndex = 4;
             // 
             // button_Login_account_riêng_lẻ
