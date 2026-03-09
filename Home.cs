@@ -39,28 +39,6 @@ namespace Tamphan_BBP_EVN_WF
             frmwebdienluc.Show();
         }
 
-        private void Btn_login_download_no_UI_Click(object sender, EventArgs e)
-        {
-            string maKH = textBox_nhập_mã_khách_hàng.Text.Trim();
-            if (maKH.Length == 5 && !maKH.StartsWith("PB010500"))
-            {
-                maKH = "PB010500" + maKH;
-                textBox_nhập_mã_khách_hàng.Text = maKH;
-            }
-            ExcelAccountEVNService service_no_UI = new ExcelAccountEVNService();
-            AccountEVN acc_no_UI = service_no_UI.GetAccount(maKH);
-            if (acc_no_UI == null)
-            {
-                MessageBox.Show("Mã khách hàng không tồn tại trong file excel");
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(textBox_password.Text) || textBox_password.Text != acc_no_UI.Password)
-            {
-                textBox_password.Text = acc_no_UI.Password;
-            }
-            Auto_Download frmwebdienluc_no_UI = new Auto_Download(maKH);
-            frmwebdienluc_no_UI.Show();
-        }
 
         private void btn_evn_download_Click(object sender, EventArgs e)
         {

@@ -38,7 +38,7 @@ namespace Tamphan_BBP_EVN_WF
             evndownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
             MousePositionHelper.Start(this);
-            var downloadHandler = new BlobPdfDownloadHandler(@"D:\Working\Điện\Đóng tiền điện\ThongBaoVaHoaDonDien", () => BuildPdfName(_maKH));
+            var downloadHandler = new BlobPdfDownloadHandler(@"C:\Users\pttbk\Downloads", () => BuildPdfName(_maKH));
             downloadHandler.PdfDownloaded += delegate (string path) { Console.WriteLine("PDF saved: " + path); };
             evndownload.DownloadHandler = downloadHandler;
             evndownload.Load(url);

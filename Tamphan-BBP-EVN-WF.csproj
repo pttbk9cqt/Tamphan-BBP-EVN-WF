@@ -140,12 +140,6 @@
     <Compile Include="EVNSPC_DownloadThongbao.Designer.cs">
       <DependentUpon>EVNSPC_DownloadThongbao.cs</DependentUpon>
     </Compile>
-    <Compile Include="Auto_Download.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Auto_Download.Designer.cs">
-      <DependentUpon>Auto_Download.cs</DependentUpon>
-    </Compile>
     <Compile Include="EVNSPC_WEB_LOGIN.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,10 +160,6 @@
     <Compile Include="Services\EvnInformationInvoiceService.cs" />
     <Compile Include="Services\ExcelAccountEVNService.cs" />
     <Compile Include="Services\MousePositionHelper.cs" />
-    <EmbeddedResource Include="Auto_Download.resx">
-      <DependentUpon>Auto_Download.cs</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="EVNSPC_DownloadThongbao.resx">
       <DependentUpon>EVNSPC_DownloadThongbao.cs</DependentUpon>
     </EmbeddedResource>

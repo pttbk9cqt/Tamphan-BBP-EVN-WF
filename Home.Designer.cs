@@ -36,7 +36,6 @@ namespace Tamphan_BBP_EVN_WF
             this.label2 = new System.Windows.Forms.Label();
             this.textBox_nhập_mã_khách_hàng = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.btn_login_download_no_UI = new System.Windows.Forms.Button();
             this.btn_evn_download = new System.Windows.Forms.Button();
             this.panel_account_lẻ.SuspendLayout();
             this.SuspendLayout();
@@ -95,23 +94,13 @@ namespace Tamphan_BBP_EVN_WF
             this.label1.TabIndex = 0;
             this.label1.Text = "Mã KH";
             // 
-            // btn_login_download_no_UI
-            // 
-            this.btn_login_download_no_UI.Location = new System.Drawing.Point(58, 119);
-            this.btn_login_download_no_UI.Name = "btn_login_download_no_UI";
-            this.btn_login_download_no_UI.Size = new System.Drawing.Size(251, 28);
-            this.btn_login_download_no_UI.TabIndex = 5;
-            this.btn_login_download_no_UI.Text = "Download no UI";
-            this.btn_login_download_no_UI.UseVisualStyleBackColor = true;
-            this.btn_login_download_no_UI.Click += new System.EventHandler(this.Btn_login_download_no_UI_Click);
-            // 
             // btn_evn_download
             // 
-            this.btn_evn_download.Location = new System.Drawing.Point(60, 153);
+            this.btn_evn_download.Location = new System.Drawing.Point(58, 118);
             this.btn_evn_download.Name = "btn_evn_download";
             this.btn_evn_download.Size = new System.Drawing.Size(249, 31);
             this.btn_evn_download.TabIndex = 10;
-            this.btn_evn_download.Text = "Download thông báo";
+            this.btn_evn_download.Text = "Download thông báo điện";
             this.btn_evn_download.UseVisualStyleBackColor = true;
             this.btn_evn_download.Click += new System.EventHandler(this.btn_evn_download_Click);
             // 
@@ -119,9 +108,8 @@ namespace Tamphan_BBP_EVN_WF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(380, 279);
+            this.ClientSize = new System.Drawing.Size(384, 230);
             this.Controls.Add(this.btn_evn_download);
-            this.Controls.Add(this.btn_login_download_no_UI);
             this.Controls.Add(this.panel_account_lẻ);
             this.Name = "Home";
             this.Text = "Tamphan";
@@ -139,7 +127,6 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox_password;
         private System.Windows.Forms.Button button_Login_account_riêng_lẻ;
-        private System.Windows.Forms.Button btn_login_download_no_UI;
         private System.Windows.Forms.Button btn_evn_download;
     }
 }
