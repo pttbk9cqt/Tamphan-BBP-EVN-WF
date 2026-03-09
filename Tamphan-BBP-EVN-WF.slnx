@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="Tamphan-BBP-EVN-WF.csproj" Id="bef937a7-7c85-427b-9dce-49ec00140338">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+</Solution>
