@@ -15,8 +15,8 @@ namespace Tamphan_BBP_EVN_WF
         private CaptchaHelper _captchaHelper;
         private EvnInformationInvoiceService _invoiceInforService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
-        private bool _DownloadBtnClicked = false;
-        private bool _LoginSuccess = false;
+        private bool _processStarted = false;
+
 
         public EVNSPC_DownloadThongbao(string maKH)
         {
@@ -49,12 +49,14 @@ namespace Tamphan_BBP_EVN_WF
         {
             if (!e.Frame.IsMain)
                 return;
+
+            if (_processStarted)
+                return;
+
             if (!e.Url.Contains("cskh.evnspc.vn/TaiKhoan/DangNhap"))
                 return;
-            if (_LoginSuccess)
-                return;
-            if (_DownloadBtnClicked)
-                return;
+
+            _processStarted = true;
 
             ExcelAccountEVNService service = new ExcelAccountEVNService();
             AccountEVN acc = service.GetAccount(_maKH);
@@ -97,7 +99,6 @@ namespace Tamphan_BBP_EVN_WF
                 }
                 else
                 {
-                    _LoginSuccess = true;
                     break;
                 }
 
@@ -113,21 +114,15 @@ namespace Tamphan_BBP_EVN_WF
             evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
             await Task.Delay(150);
             evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
-            _DownloadBtnClicked = true;
-
             //Application.Exit();
         }
 
         string BuildPdfName(string maKH)
         {
-            _maKH = maKH;
             ExcelAccountEVNService service = new ExcelAccountEVNService();
-            AccountEVN acc = service.GetAccount(_maKH);
-            DateTime.Now.ToString("dd/MM/yyyy");
-            return acc.MucDichSuDung + "_" + "Thông báo tiền điện tháng " + kyHoaDon + "_" + _maKH + ".pdf";
+            AccountEVN acc = service.GetAccount(maKH);
+            return acc.MucDichSuDung + "_Thông báo tiền điện tháng " + kyHoaDon + "_" + maKH + ".pdf";
         }
-
-
 
         private async void btn_exporttable_Click(object sender, EventArgs e)
         {
