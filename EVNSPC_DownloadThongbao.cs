@@ -13,15 +13,18 @@ namespace Tamphan_BBP_EVN_WF
     {
         private string _maKH;
         private CaptchaHelper _captchaHelper;
+        private bool _LoginSuccess = false;
         private EvnInformationInvoiceService _invoiceInforService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
         private bool _processStarted = false;
+        private ExcelAccountEVNService _excelService;
 
 
         public EVNSPC_DownloadThongbao(string maKH)
         {
             InitializeComponent();
             _maKH = maKH;
+            _excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             _captchaHelper = new CaptchaHelper(evndownload);
@@ -34,6 +37,8 @@ namespace Tamphan_BBP_EVN_WF
             {
                 CefSettings settings = new CefSettings();
                 settings.BrowserSubprocessPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "CefSharp.BrowserSubprocess.exe");
+                // USER AGENT CHROME THẬT
+                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
                 Cef.Initialize(settings);
             }
             evndownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
@@ -41,66 +46,59 @@ namespace Tamphan_BBP_EVN_WF
             MousePositionHelper.Start(this);
             //var downloadHandler = new BlobPdfDownloadHandler(@"C:\Users\pttbk\Downloads", () => BuildPdfName(_maKH));
             var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads"),() => BuildPdfName(_maKH));
-            downloadHandler.PdfDownloaded += delegate (string path) { Console.WriteLine("PDF saved: " + path); };
+            //downloadHandler.PdfDownloaded += delegate (string path) {Console.WriteLine("PDF saved: " + path);}; thay thế bằng 01 dòng code ngay phía bên dưới downloadHandler.PdfDownloaded += OnPdfDownloaded; và chương trình hàm OnPdfDownloaded để sau khi tải xong sẽ tự động đóng form
+            downloadHandler.PdfDownloaded += OnPdfDownloaded;
             evndownload.DownloadHandler = downloadHandler;
             evndownload.Load(url);
         }
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
         {
-            if (!e.Frame.IsMain)
-                return;
+            if (!e.Frame.IsMain) return;
 
-            if (_processStarted)
-                return;
+            if (!e.Url.Contains("DangNhap")) return;
 
-            if (!e.Url.Contains("cskh.evnspc.vn/TaiKhoan/DangNhap"))
-                return;
+            if (_processStarted) return;
+
 
             _processStarted = true;
 
-            ExcelAccountEVNService service = new ExcelAccountEVNService();
-            AccountEVN acc = service.GetAccount(_maKH);
+            AccountEVN acc = _excelService.GetAccount(_maKH);
 
             if (acc == null)
                 return;
+            await AutoLogin(acc);
+        }
 
-            string fill_maKH_pass_Script = $@"
-            (function() 
+
+        private async Task AutoLogin(AccountEVN acc)
+        {
+            string loginScript = $@"
+            (function()
             {{
                 let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
                 let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
-                if (userInput && passInput) 
+
+                if(userInput && passInput)
                 {{
                     userInput.value = '{acc.MaKH}';
-                    userInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
                     passInput.value = '{acc.Password}';
-                    passInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+
+                    userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
+                    passInput.dispatchEvent(new Event('input', {{bubbles:true}}));
                 }}
             }})();
             ";
-            evndownload.ExecuteScriptAsync(fill_maKH_pass_Script);//tới đây là đã tự điền mã KH và pass
-            await Task.Delay(500);
-            await _captchaHelper.AutoFillCaptchaAsync();// ĐẾN ĐÂY LÀ ĐÃ ĐIỀN XONG CAPTCHA VÀO TRANG WEB
-            await Task.Delay(1200);
-            evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
-            await Task.Delay(1200); // chờ load trang sau khi đăng nhập
 
-            //nếu bị lỗi captcha hoặc đăng nhập không thành công thì thử lại
-            for (int i = 0; i <= 3; i++) // thử 3 lần
-                if (evndownload.Address.Contains("cskh.evnspc.vn/TaiKhoan/DangNhap"))
-                {
-                    evndownload.Reload();
-                    await Task.Delay(1000); // chờ load lại trang
-                    evndownload.ExecuteScriptAsync(fill_maKH_pass_Script);
-                    await _captchaHelper.AutoFillCaptchaAsync();
-                    await Task.Delay(700);
-                    evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
-                    await Task.Delay(2000);
-                }
-                else
-                {
-                    break;
-                }
+            // điền user pass
+            evndownload.ExecuteScriptAsync(loginScript);
+            await Task.Delay(400);
+            // captcha
+            await _captchaHelper.AutoFillCaptchaAsync();
+            await Task.Delay(800);
+            // click login
+            evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+            await Task.Delay(2000);
+            await RetryLoginIfFailed(acc);
 
             //tới đây là đã đăng nhập thành công rồi, click vào nút view thông báo/hóa đơn (nếu có thông báo thì vẫn nút đó, nếu có hóa đơn rồi thì vẫn nút tên đó không đổi)
             evndownload.ExecuteScriptAsync("document.querySelector('a.invoice-btn.view-btn.cursor').click();");
@@ -115,14 +113,75 @@ namespace Tamphan_BBP_EVN_WF
             await Task.Delay(150);
             evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
             //Application.Exit();
-            this.Close();
         }
+
+        private async Task RetryLoginIfFailed(AccountEVN acc)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (!evndownload.Address.Contains("DangNhap"))
+                {
+                    _LoginSuccess = true;
+                    return;
+                }
+
+                await Task.Delay(1000);
+                evndownload.Reload();
+                await Task.Delay(1500);
+                string retryScript = $@"
+                (function()
+                {{
+                    let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
+                    let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
+
+                    if(userInput && passInput)
+                    {{
+                        userInput.value = '{acc.MaKH}';
+                        passInput.value = '{acc.Password}';
+                    }}
+                }})();
+                ";
+
+                evndownload.ExecuteScriptAsync(retryScript);
+                await Task.Delay(400);
+                await _captchaHelper.AutoFillCaptchaAsync();
+                await Task.Delay(600);
+                evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+                await Task.Delay(2000);
+            }
+        }
+
 
         string BuildPdfName(string maKH)
         {
-            ExcelAccountEVNService service = new ExcelAccountEVNService();
-            AccountEVN acc = service.GetAccount(maKH);
+            AccountEVN acc = _excelService.GetAccount(maKH);
             return acc.MucDichSuDung + "_Thông báo tiền điện tháng " + kyHoaDon + "_" + maKH + ".pdf";
+        }
+        private void OnPdfDownloaded(string path)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => OnPdfDownloaded(path)));
+                return;
+            }
+
+            Console.WriteLine("PDF saved: " + path);
+
+            // delay nhỏ để chắc chắn file rename xong
+            Task.Delay(500).ContinueWith(t =>
+            {
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        this.Close();
+                    }));
+                }
+                else
+                {
+                    this.Close();
+                }
+            });
         }
 
         private async void btn_exporttable_Click(object sender, EventArgs e)

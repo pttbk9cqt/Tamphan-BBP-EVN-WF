@@ -41,6 +41,7 @@ namespace Tamphan_BBP_EVN_WF
             this.panelDropExcel = new System.Windows.Forms.Panel();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.label3 = new System.Windows.Forms.Label();
+            this.btn_import_excelsource = new System.Windows.Forms.Button();
             this.panel_account_lẻ.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
@@ -122,9 +123,9 @@ namespace Tamphan_BBP_EVN_WF
             // 
             this.panelDropExcel.AllowDrop = true;
             this.panelDropExcel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelDropExcel.Location = new System.Drawing.Point(201, 163);
+            this.panelDropExcel.Location = new System.Drawing.Point(425, 156);
             this.panelDropExcel.Name = "panelDropExcel";
-            this.panelDropExcel.Size = new System.Drawing.Size(247, 29);
+            this.panelDropExcel.Size = new System.Drawing.Size(137, 29);
             this.panelDropExcel.TabIndex = 12;
             this.panelDropExcel.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDropExcel_DragDrop);
             this.panelDropExcel.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDropExcel_DragEnter);
@@ -140,17 +141,28 @@ namespace Tamphan_BBP_EVN_WF
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(75, 172);
+            this.label3.Location = new System.Drawing.Point(295, 164);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(112, 13);
+            this.label3.Size = new System.Drawing.Size(122, 13);
             this.label3.TabIndex = 0;
-            this.label3.Text = "Thả file excel vào đây";
+            this.label3.Text = "Import file excel vào đây";
+            // 
+            // btn_import_excelsource
+            // 
+            this.btn_import_excelsource.Location = new System.Drawing.Point(47, 159);
+            this.btn_import_excelsource.Name = "btn_import_excelsource";
+            this.btn_import_excelsource.Size = new System.Drawing.Size(179, 23);
+            this.btn_import_excelsource.TabIndex = 14;
+            this.btn_import_excelsource.Text = "Nhập từ file dữ liệu excel gốc";
+            this.btn_import_excelsource.UseVisualStyleBackColor = true;
+            this.btn_import_excelsource.Click += new System.EventHandler(this.btn_import_excelsource_Click);
             // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(606, 576);
+            this.Controls.Add(this.btn_import_excelsource);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.dataGridView);
             this.Controls.Add(this.panelDropExcel);
@@ -180,6 +192,7 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.Panel panelDropExcel;
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btn_import_excelsource;
     }
 }
 

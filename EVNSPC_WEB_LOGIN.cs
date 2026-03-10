@@ -12,17 +12,16 @@ namespace Tamphan_BBP_EVN_WF
 {
     public partial class EVNSPC_WEB_LOGIN : Form
     {
-        private ExcelAccountEVNService _excelService;
         private string _maKH;
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess = false;
-        private bool _DownloadBtnClicked = false;
+        private ExcelAccountEVNService _excelService;
 
         public EVNSPC_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
         {
             InitializeComponent();
             _maKH = maKH;
-            _excelService = service;
+            _excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             _captchaHelper = new CaptchaHelper(weblogin);
@@ -53,11 +52,10 @@ namespace Tamphan_BBP_EVN_WF
 
             if (_LoginSuccess) return;
 
-            if (_DownloadBtnClicked) return;
-
             AccountEVN acc = _excelService.GetAccount(_maKH);
 
-            if (acc == null) return;
+            if (acc == null) 
+                return;
 
             await AutoLogin(acc);
         }

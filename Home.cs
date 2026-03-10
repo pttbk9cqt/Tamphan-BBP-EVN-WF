@@ -107,6 +107,10 @@ namespace Tamphan_BBP_EVN_WF
         private void panelDropExcel_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files.Length == 0)
+                return;
+
             string filePath = files[0];
 
             if (!filePath.EndsWith(".xlsx") && !filePath.EndsWith(".xls") && !filePath.EndsWith(".xlsm"))
@@ -122,10 +126,14 @@ namespace Tamphan_BBP_EVN_WF
         // Load Excel vào DataGridView
         // ==============================
         private void LoadExcel(string filePath)
-        {
+        {   // reset DataGridView trước
+            dataGridView.DataSource = null;
+            dataGridView.Rows.Clear();
+            dataGridView.Columns.Clear();
+
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
@@ -145,6 +153,28 @@ namespace Tamphan_BBP_EVN_WF
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 }
             }
+        }
+
+
+        private void btn_import_excelsource_Click(object sender, EventArgs e)
+        {
+            var list = _excelService.GetAllAccounts();
+
+            DataTable table = new DataTable();
+            table.Columns.Add("STT");
+            table.Columns.Add("Mã KH");
+            table.Columns.Add("Mục đích sử dụng");
+            table.Columns.Add("Password");
+
+            int i = 1;
+
+            foreach (var acc in list)
+            {
+                table.Rows.Add(i++, acc.MaKH, acc.MucDichSuDung, acc.Password);
+            }
+
+            dataGridView.DataSource = table;
+            dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
     }
 }

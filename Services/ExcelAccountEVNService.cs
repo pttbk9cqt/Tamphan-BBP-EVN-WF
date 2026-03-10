@@ -55,5 +55,13 @@ namespace Tamphan_BBP_EVN_WF.Services
 
             return null;
         }
+
+        public List<AccountEVN> GetAllAccounts()
+        {
+            if (_cache == null)
+                LoadData();
+
+            return new List<AccountEVN>(_cache.Values);
+        }
     }
 }
