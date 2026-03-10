@@ -1,6 +1,6 @@
 ﻿namespace Tamphan_BBP_EVN_WF.Models
 {
-    internal class AccountEVN
+    public class AccountEVN
     {
         public string Id { get; set; }
         public string MaKH { get; set; }

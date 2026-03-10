@@ -70,7 +70,7 @@ namespace Tamphan_BBP_EVN_WF
             var acc = GetAccountFromInput();
             if (acc == null) return;
 
-            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH);
+            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, _excelService);
             //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
             frm.Show();
         }

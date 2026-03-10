@@ -5,7 +5,7 @@ using Tamphan_BBP_EVN_WF.Models;
 
 namespace Tamphan_BBP_EVN_WF.Services
 {
-    internal class ExcelAccountEVNService
+    public class ExcelAccountEVNService
     {
         private const string ExcelPath = "Data\\AccountEVN-addWF.xlsm";
 
@@ -21,7 +21,11 @@ namespace Tamphan_BBP_EVN_WF.Services
             using (var wb = new XLWorkbook(ExcelPath))
             {
                 var ws = wb.Worksheet(1);
-                int lastRow = ws.LastRowUsed().RowNumber();
+                var lastRowUsed = ws.LastRowUsed();
+                if (lastRowUsed == null)
+                    return;
+
+                int lastRow = lastRowUsed.RowNumber();
 
                 for (int row = 2; row <= lastRow; row++)
                 {
