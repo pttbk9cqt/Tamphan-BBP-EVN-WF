@@ -7,7 +7,7 @@ namespace Tamphan_BBP_EVN_WF.Services
 {
     public class ExcelAccountEVNService
     {
-        private const string ExcelPath = "Data\\AccountEVN-addWF.xlsm";
+        private const string ExcelPath = "Data\\Bảng quản lý cấp điện.xlsm";
 
         private Dictionary<string, AccountEVN> _cache;
 
@@ -29,7 +29,7 @@ namespace Tamphan_BBP_EVN_WF.Services
 
                 for (int row = 2; row <= lastRow; row++)
                 {
-                    string maKH = ws.Cell(row, "B").GetString().Trim();
+                    string maKH = ws.Cell(row, "I").GetString().Trim();
 
                     if (!_cache.ContainsKey(maKH))
                     {
@@ -37,8 +37,9 @@ namespace Tamphan_BBP_EVN_WF.Services
                         {
                             Id = ws.Cell(row, "A").GetString(),
                             MaKH = maKH,
-                            MucDichSuDung = ws.Cell(row, "C").GetString(),
-                            Password = ws.Cell(row, "E").GetString()
+                            MucDichSuDung = ws.Cell(row, "K").GetString(),
+                            TenDangNhap = ws.Cell(row, "F").GetString(),
+                            Password = ws.Cell(row, "G").GetString()
                         });
                     }
                 }

@@ -31,6 +31,8 @@ namespace Tamphan_BBP_EVN_WF
         private void InitializeComponent()
         {
             this.panel_account_lẻ = new System.Windows.Forms.Panel();
+            this.textBox_username = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.button_Login_account_riêng_lẻ = new System.Windows.Forms.Button();
             this.textBox_password = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -48,6 +50,8 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // panel_account_lẻ
             // 
+            this.panel_account_lẻ.Controls.Add(this.textBox_username);
+            this.panel_account_lẻ.Controls.Add(this.label4);
             this.panel_account_lẻ.Controls.Add(this.button_Login_account_riêng_lẻ);
             this.panel_account_lẻ.Controls.Add(this.textBox_password);
             this.panel_account_lẻ.Controls.Add(this.label2);
@@ -55,12 +59,28 @@ namespace Tamphan_BBP_EVN_WF
             this.panel_account_lẻ.Controls.Add(this.label1);
             this.panel_account_lẻ.Location = new System.Drawing.Point(47, 12);
             this.panel_account_lẻ.Name = "panel_account_lẻ";
-            this.panel_account_lẻ.Size = new System.Drawing.Size(515, 60);
+            this.panel_account_lẻ.Size = new System.Drawing.Size(847, 60);
             this.panel_account_lẻ.TabIndex = 4;
+            // 
+            // textBox_username
+            // 
+            this.textBox_username.Location = new System.Drawing.Point(337, 19);
+            this.textBox_username.Name = "textBox_username";
+            this.textBox_username.Size = new System.Drawing.Size(193, 20);
+            this.textBox_username.TabIndex = 6;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(252, 22);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(81, 13);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "Tên đăng nhập";
             // 
             // button_Login_account_riêng_lẻ
             // 
-            this.button_Login_account_riêng_lẻ.Location = new System.Drawing.Point(421, 20);
+            this.button_Login_account_riêng_lẻ.Location = new System.Drawing.Point(729, 19);
             this.button_Login_account_riêng_lẻ.Name = "button_Login_account_riêng_lẻ";
             this.button_Login_account_riêng_lẻ.Size = new System.Drawing.Size(64, 21);
             this.button_Login_account_riêng_lẻ.TabIndex = 4;
@@ -70,7 +90,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // textBox_password
             // 
-            this.textBox_password.Location = new System.Drawing.Point(273, 20);
+            this.textBox_password.Location = new System.Drawing.Point(587, 19);
             this.textBox_password.Name = "textBox_password";
             this.textBox_password.Size = new System.Drawing.Size(121, 20);
             this.textBox_password.TabIndex = 3;
@@ -78,7 +98,7 @@ namespace Tamphan_BBP_EVN_WF
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(237, 23);
+            this.label2.Location = new System.Drawing.Point(551, 22);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(30, 13);
             this.label2.TabIndex = 2;
@@ -102,7 +122,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // btn_evn_download
             // 
-            this.btn_evn_download.Location = new System.Drawing.Point(199, 89);
+            this.btn_evn_download.Location = new System.Drawing.Point(155, 88);
             this.btn_evn_download.Name = "btn_evn_download";
             this.btn_evn_download.Size = new System.Drawing.Size(253, 31);
             this.btn_evn_download.TabIndex = 10;
@@ -112,18 +132,19 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // btn_multidownload
             // 
-            this.btn_multidownload.Location = new System.Drawing.Point(248, 541);
+            this.btn_multidownload.Location = new System.Drawing.Point(399, 541);
             this.btn_multidownload.Name = "btn_multidownload";
             this.btn_multidownload.Size = new System.Drawing.Size(105, 23);
             this.btn_multidownload.TabIndex = 11;
             this.btn_multidownload.Text = "Multiple Download";
             this.btn_multidownload.UseVisualStyleBackColor = true;
+            this.btn_multidownload.Click += new System.EventHandler(this.btn_multidownload_Click);
             // 
             // panelDropExcel
             // 
             this.panelDropExcel.AllowDrop = true;
             this.panelDropExcel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelDropExcel.Location = new System.Drawing.Point(425, 156);
+            this.panelDropExcel.Location = new System.Drawing.Point(757, 162);
             this.panelDropExcel.Name = "panelDropExcel";
             this.panelDropExcel.Size = new System.Drawing.Size(137, 29);
             this.panelDropExcel.TabIndex = 12;
@@ -135,13 +156,13 @@ namespace Tamphan_BBP_EVN_WF
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView.Location = new System.Drawing.Point(42, 210);
             this.dataGridView.Name = "dataGridView";
-            this.dataGridView.Size = new System.Drawing.Size(520, 312);
+            this.dataGridView.Size = new System.Drawing.Size(852, 312);
             this.dataGridView.TabIndex = 13;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(295, 164);
+            this.label3.Location = new System.Drawing.Point(627, 170);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(122, 13);
             this.label3.TabIndex = 0;
@@ -149,7 +170,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // btn_import_excelsource
             // 
-            this.btn_import_excelsource.Location = new System.Drawing.Point(47, 159);
+            this.btn_import_excelsource.Location = new System.Drawing.Point(47, 162);
             this.btn_import_excelsource.Name = "btn_import_excelsource";
             this.btn_import_excelsource.Size = new System.Drawing.Size(179, 23);
             this.btn_import_excelsource.TabIndex = 14;
@@ -161,7 +182,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(606, 576);
+            this.ClientSize = new System.Drawing.Size(935, 576);
             this.Controls.Add(this.btn_import_excelsource);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.dataGridView);
@@ -193,6 +214,8 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_import_excelsource;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox textBox_username;
     }
 }
 

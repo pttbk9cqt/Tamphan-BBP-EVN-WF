@@ -5,6 +5,7 @@ using Tamphan_BBP_EVN_WF.Services;
 using System.Data;
 using System.IO;
 using ExcelDataReader;
+using System.Threading.Tasks;
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -54,6 +55,11 @@ namespace Tamphan_BBP_EVN_WF
                 return null;
             }
 
+            if (string.IsNullOrWhiteSpace(textBox_username.Text) || textBox_username.Text != acc.MaKH)
+            {
+                textBox_username.Text = acc.TenDangNhap;
+            }
+
             if (string.IsNullOrWhiteSpace(textBox_password.Text) || textBox_password.Text != acc.Password)
             {
                 textBox_password.Text = acc.Password;
@@ -70,7 +76,7 @@ namespace Tamphan_BBP_EVN_WF
             var acc = GetAccountFromInput();
             if (acc == null) return;
 
-            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, _excelService);
+            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, acc.TenDangNhap ,_excelService);
             //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
             frm.Show();
         }
@@ -83,7 +89,7 @@ namespace Tamphan_BBP_EVN_WF
             var acc = GetAccountFromInput();
             if (acc == null) return;
 
-            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH);
+            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH, acc.TenDangNhap);
             frm.ShowDialog();
         }
 
@@ -148,8 +154,7 @@ namespace Tamphan_BBP_EVN_WF
                     DataTable table = result.Tables[0];
                     //dataGridView.DataSource = table;  //Hiển thị tất cả dữ liệu, kể các các cột và hàng đã hide
                     dataGridView.DataSource =
-                        table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[7].ColumnName);
-                    //chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, bắt đầu từ index 0, là STT, cột E index 4 Bên phụ trách, cột F index 5 Mã KH, cột H index 7 Mục đích sử dụng
+                        table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 }
             }
@@ -162,19 +167,50 @@ namespace Tamphan_BBP_EVN_WF
 
             DataTable table = new DataTable();
             table.Columns.Add("STT");
+            table.Columns.Add("Tên đăng nhập");
+            table.Columns.Add("Password");
             table.Columns.Add("Mã KH");
             table.Columns.Add("Mục đích sử dụng");
-            table.Columns.Add("Password");
-
-            int i = 1;
 
             foreach (var acc in list)
             {
-                table.Rows.Add(i++, acc.MaKH, acc.MucDichSuDung, acc.Password);
+                table.Rows.Add(acc.Id, acc.TenDangNhap, acc.Password, acc.MaKH, acc.MucDichSuDung);
             }
 
             dataGridView.DataSource = table;
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
+
+        private async void btn_multidownload_Click(object sender, EventArgs e)
+        {
+            if (dataGridView.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để download");
+                return;
+            }
+
+            foreach (DataGridViewRow row in dataGridView.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                string maKH = row.Cells[4].Value?.ToString(); // cột Mã KH
+                string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
+
+                if (string.IsNullOrWhiteSpace(maKH))
+                    continue;
+
+                maKH = NormalizeMaKH(maKH);
+
+                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH, tenDangNhap))
+                {
+                    frm.ShowDialog(); // chờ download xong
+                }
+
+                await Task.Delay(1000); // nghỉ 1s tránh EVN block
+            }
+
+            MessageBox.Show("Done");
+        }
     }
+    
 }

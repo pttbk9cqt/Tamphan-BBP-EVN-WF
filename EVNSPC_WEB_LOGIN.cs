@@ -17,7 +17,7 @@ namespace Tamphan_BBP_EVN_WF
         private bool _LoginSuccess = false;
         private ExcelAccountEVNService _excelService;
 
-        public EVNSPC_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
+        public EVNSPC_WEB_LOGIN(string maKH, string tenDangNhap, ExcelAccountEVNService service)
         {
             InitializeComponent();
             _maKH = maKH;
@@ -70,7 +70,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 if(userInput && passInput)
                 {{
-                    userInput.value = '{acc.MaKH}';
+                    userInput.value = '{acc.TenDangNhap}';
                     passInput.value = '{acc.Password}';
 
                     userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
@@ -112,7 +112,7 @@ namespace Tamphan_BBP_EVN_WF
 
                     if(userInput && passInput)
                     {{
-                        userInput.value = '{acc.MaKH}';
+                        userInput.value = '{acc.TenDangNhap}';
                         passInput.value = '{acc.Password}';
                     }}
                 }})();

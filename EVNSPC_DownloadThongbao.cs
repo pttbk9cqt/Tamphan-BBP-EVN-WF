@@ -13,14 +13,14 @@ namespace Tamphan_BBP_EVN_WF
     {
         private string _maKH;
         private CaptchaHelper _captchaHelper;
-        private bool _LoginSuccess = false;
+        //private bool _LoginSuccess = false;
         private EvnInformationInvoiceService _invoiceInforService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
         private bool _processStarted = false;
         private ExcelAccountEVNService _excelService;
 
 
-        public EVNSPC_DownloadThongbao(string maKH)
+        public EVNSPC_DownloadThongbao(string maKH, string tenDangNhap)
         {
             InitializeComponent();
             _maKH = maKH;
@@ -80,7 +80,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 if(userInput && passInput)
                 {{
-                    userInput.value = '{acc.MaKH}';
+                    userInput.value = '{acc.TenDangNhap}';
                     passInput.value = '{acc.Password}';
 
                     userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
@@ -121,7 +121,7 @@ namespace Tamphan_BBP_EVN_WF
             {
                 if (!evndownload.Address.Contains("DangNhap"))
                 {
-                    _LoginSuccess = true;
+                    //_LoginSuccess = true;
                     return;
                 }
 
@@ -136,7 +136,7 @@ namespace Tamphan_BBP_EVN_WF
 
                     if(userInput && passInput)
                     {{
-                        userInput.value = '{acc.MaKH}';
+                        userInput.value = '{acc.TenDangNhap}';
                         passInput.value = '{acc.Password}';
                     }}
                 }})();
