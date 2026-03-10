@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using System.Collections.Generic;
 using System.IO;
 using Tamphan_BBP_EVN_WF.Models;
 
@@ -8,31 +9,45 @@ namespace Tamphan_BBP_EVN_WF.Services
     {
         private const string ExcelPath = "Data\\AccountEVN-addWF.xlsm";
 
-        public AccountEVN GetAccount(string maKH)
+        private Dictionary<string, AccountEVN> _cache;
+
+        public void LoadData()
         {
             if (!File.Exists(ExcelPath))
-                return null;
+                return;
+
+            _cache = new Dictionary<string, AccountEVN>();
 
             using (var wb = new XLWorkbook(ExcelPath))
             {
                 var ws = wb.Worksheet(1);
+                int lastRow = ws.LastRowUsed().RowNumber();
 
-                for (int row = 2; row <= 1000; row++)
+                for (int row = 2; row <= lastRow; row++)
                 {
-                    string maKHExcel = ws.Cell(row, "B").GetString().Trim();
+                    string maKH = ws.Cell(row, "B").GetString().Trim();
 
-                    if (maKHExcel == maKH)
+                    if (!_cache.ContainsKey(maKH))
                     {
-                        return new AccountEVN
+                        _cache.Add(maKH, new AccountEVN
                         {
                             Id = ws.Cell(row, "A").GetString(),
-                            MaKH = maKHExcel,
+                            MaKH = maKH,
                             MucDichSuDung = ws.Cell(row, "C").GetString(),
                             Password = ws.Cell(row, "E").GetString()
-                        };
+                        });
                     }
                 }
             }
+        }
+
+        public AccountEVN GetAccount(string maKH)
+        {
+            if (_cache == null)
+                LoadData();
+
+            if (_cache.TryGetValue(maKH, out var account))
+                return account;
 
             return null;
         }

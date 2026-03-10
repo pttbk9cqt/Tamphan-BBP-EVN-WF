@@ -37,7 +37,11 @@ namespace Tamphan_BBP_EVN_WF
             this.textBox_nhập_mã_khách_hàng = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btn_evn_download = new System.Windows.Forms.Button();
+            this.btn_multidownload = new System.Windows.Forms.Button();
+            this.panelDropExcel = new System.Windows.Forms.Panel();
+            this.dataGridView = new System.Windows.Forms.DataGridView();
             this.panel_account_lẻ.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // panel_account_lẻ
@@ -96,25 +100,57 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // btn_evn_download
             // 
-            this.btn_evn_download.Location = new System.Drawing.Point(58, 118);
+            this.btn_evn_download.Location = new System.Drawing.Point(56, 118);
             this.btn_evn_download.Name = "btn_evn_download";
-            this.btn_evn_download.Size = new System.Drawing.Size(249, 31);
+            this.btn_evn_download.Size = new System.Drawing.Size(253, 31);
             this.btn_evn_download.TabIndex = 10;
-            this.btn_evn_download.Text = "Download thông báo điện";
+            this.btn_evn_download.Text = "Download lẻ thông báo điện theo mã KH";
             this.btn_evn_download.UseVisualStyleBackColor = true;
             this.btn_evn_download.Click += new System.EventHandler(this.btn_evn_download_Click);
+            // 
+            // btn_multidownload
+            // 
+            this.btn_multidownload.Location = new System.Drawing.Point(129, 471);
+            this.btn_multidownload.Name = "btn_multidownload";
+            this.btn_multidownload.Size = new System.Drawing.Size(105, 23);
+            this.btn_multidownload.TabIndex = 11;
+            this.btn_multidownload.Text = "Multiple Download";
+            this.btn_multidownload.UseVisualStyleBackColor = true;
+            // 
+            // panelDropExcel
+            // 
+            this.panelDropExcel.AllowDrop = true;
+            this.panelDropExcel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelDropExcel.Location = new System.Drawing.Point(42, 170);
+            this.panelDropExcel.Name = "panelDropExcel";
+            this.panelDropExcel.Size = new System.Drawing.Size(283, 42);
+            this.panelDropExcel.TabIndex = 12;
+            this.panelDropExcel.DragDrop += new System.Windows.Forms.DragEventHandler(this.panelDropExcel_DragDrop);
+            this.panelDropExcel.DragEnter += new System.Windows.Forms.DragEventHandler(this.panelDropExcel_DragEnter);
+            // 
+            // dataGridView
+            // 
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.Location = new System.Drawing.Point(42, 227);
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.Size = new System.Drawing.Size(520, 214);
+            this.dataGridView.TabIndex = 13;
             // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 230);
+            this.ClientSize = new System.Drawing.Size(596, 576);
+            this.Controls.Add(this.dataGridView);
+            this.Controls.Add(this.panelDropExcel);
+            this.Controls.Add(this.btn_multidownload);
             this.Controls.Add(this.btn_evn_download);
             this.Controls.Add(this.panel_account_lẻ);
             this.Name = "Home";
             this.Text = "Tamphan";
             this.panel_account_lẻ.ResumeLayout(false);
             this.panel_account_lẻ.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -128,6 +164,9 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.TextBox textBox_password;
         private System.Windows.Forms.Button button_Login_account_riêng_lẻ;
         private System.Windows.Forms.Button btn_evn_download;
+        private System.Windows.Forms.Button btn_multidownload;
+        private System.Windows.Forms.Panel panelDropExcel;
+        private System.Windows.Forms.DataGridView dataGridView;
     }
 }
 

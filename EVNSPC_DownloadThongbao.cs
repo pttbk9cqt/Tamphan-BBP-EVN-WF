@@ -115,6 +115,7 @@ namespace Tamphan_BBP_EVN_WF
             await Task.Delay(150);
             evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
             //Application.Exit();
+            this.Close();
         }
 
         string BuildPdfName(string maKH)
