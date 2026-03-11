@@ -88,7 +88,6 @@ namespace Tamphan_BBP_EVN_WF
                 return;
 
             //////phần này tra danh sách các mã đã gộp, nếu nó có nhiều mã được gộp thì download sẽ bị sai, trả file pdf đúng tên đúng mã KH nhưng không đúng hóa đơn, nó sẽ nhầm sang căn khác nên phải ngăn ngừa
-
             if (danhsachmaKHcoGopMa.Contains(acc.MaKH))
             {
                 MessageBox.Show("Mã KH được gộp, có nhiều thông báo và hóa đơn, cần tải riêng lẻ");
