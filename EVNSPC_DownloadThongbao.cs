@@ -12,23 +12,22 @@ namespace Tamphan_BBP_EVN_WF
     public partial class EVNSPC_DownloadThongbao : Form
     {
         private string _maKH;
-        private CaptchaHelper _captchaHelper;
-        //private bool _LoginSuccess = false;
-        private EvnInformationInvoiceService _invoiceInforService;
+        private CaptchaHelper captchaHelper;
+        private EvnInformationInvoiceService invoiceInforService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
-        private bool _processStarted = false;
-        private ExcelAccountEVNService _excelService;
+        private bool processStarted = false;
+        private ExcelAccountEVNService excelService;
 
 
-        public EVNSPC_DownloadThongbao(string maKH, string tenDangNhap)
+        public EVNSPC_DownloadThongbao(string maKH, string username)
         {
             InitializeComponent();
             _maKH = maKH;
-            _excelService = new ExcelAccountEVNService();
+            excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            _captchaHelper = new CaptchaHelper(evndownload);
-            _invoiceInforService = new EvnInformationInvoiceService(evndownload);
+            captchaHelper = new CaptchaHelper(evndownload);
+            invoiceInforService = new EvnInformationInvoiceService(evndownload);
         }
 
         private void InitBrowser()
@@ -57,12 +56,12 @@ namespace Tamphan_BBP_EVN_WF
 
             if (!e.Url.Contains("DangNhap")) return;
 
-            if (_processStarted) return;
+            if (processStarted) return;
 
 
-            _processStarted = true;
+            processStarted = true;
 
-            AccountEVN acc = _excelService.GetAccount(_maKH);
+            AccountEVN acc = excelService.GetAccount(_maKH);
 
             if (acc == null)
                 return;
@@ -80,7 +79,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 if(userInput && passInput)
                 {{
-                    userInput.value = '{acc.TenDangNhap}';
+                    userInput.value = '{acc.Username}';
                     passInput.value = '{acc.Password}';
 
                     userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
@@ -93,7 +92,7 @@ namespace Tamphan_BBP_EVN_WF
             evndownload.ExecuteScriptAsync(loginScript);
             await Task.Delay(400);
             // captcha
-            await _captchaHelper.AutoFillCaptchaAsync();
+            await captchaHelper.AutoFillCaptchaAsync();
             await Task.Delay(800);
             // click login
             evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
@@ -121,7 +120,6 @@ namespace Tamphan_BBP_EVN_WF
             {
                 if (!evndownload.Address.Contains("DangNhap"))
                 {
-                    //_LoginSuccess = true;
                     return;
                 }
 
@@ -136,7 +134,7 @@ namespace Tamphan_BBP_EVN_WF
 
                     if(userInput && passInput)
                     {{
-                        userInput.value = '{acc.TenDangNhap}';
+                        userInput.value = '{acc.Username}';
                         passInput.value = '{acc.Password}';
                     }}
                 }})();
@@ -144,7 +142,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 evndownload.ExecuteScriptAsync(retryScript);
                 await Task.Delay(400);
-                await _captchaHelper.AutoFillCaptchaAsync();
+                await captchaHelper.AutoFillCaptchaAsync();
                 await Task.Delay(600);
                 evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
@@ -154,7 +152,7 @@ namespace Tamphan_BBP_EVN_WF
 
         string BuildPdfName(string maKH)
         {
-            AccountEVN acc = _excelService.GetAccount(maKH);
+            AccountEVN acc = excelService.GetAccount(maKH);
             return acc.MucDichSuDung + "_Thông báo tiền điện tháng " + kyHoaDon + "_" + maKH + ".pdf";
         }
         private void OnPdfDownloaded(string path)
@@ -186,7 +184,7 @@ namespace Tamphan_BBP_EVN_WF
 
         private async void btn_exporttable_Click(object sender, EventArgs e)
         {
-            var list = await _invoiceInforService.ExportInforAsync();
+            var list = await invoiceInforService.ExportInforAsync();
 
             if (list.Count == 0)
             {
@@ -194,7 +192,7 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
 
-            string path = _invoiceInforService.ExportToExcel(list, _maKH);
+            string path = invoiceInforService.ExportToExcel(list, _maKH);
             MessageBox.Show($"Xuất Excel thành công:\n{path}");
         }
     }

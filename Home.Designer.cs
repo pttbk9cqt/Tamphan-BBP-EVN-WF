@@ -36,7 +36,7 @@ namespace Tamphan_BBP_EVN_WF
             this.button_Login_account_riêng_lẻ = new System.Windows.Forms.Button();
             this.textBox_password = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_nhập_mã_khách_hàng = new System.Windows.Forms.TextBox();
+            this.textBox_maKH = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btn_evn_download = new System.Windows.Forms.Button();
             this.btn_multidownload = new System.Windows.Forms.Button();
@@ -55,7 +55,7 @@ namespace Tamphan_BBP_EVN_WF
             this.panel_account_lẻ.Controls.Add(this.button_Login_account_riêng_lẻ);
             this.panel_account_lẻ.Controls.Add(this.textBox_password);
             this.panel_account_lẻ.Controls.Add(this.label2);
-            this.panel_account_lẻ.Controls.Add(this.textBox_nhập_mã_khách_hàng);
+            this.panel_account_lẻ.Controls.Add(this.textBox_maKH);
             this.panel_account_lẻ.Controls.Add(this.label1);
             this.panel_account_lẻ.Location = new System.Drawing.Point(47, 12);
             this.panel_account_lẻ.Name = "panel_account_lẻ";
@@ -104,12 +104,12 @@ namespace Tamphan_BBP_EVN_WF
             this.label2.TabIndex = 2;
             this.label2.Text = "Pass";
             // 
-            // textBox_nhập_mã_khách_hàng
+            // textBox_maKH
             // 
-            this.textBox_nhập_mã_khách_hàng.Location = new System.Drawing.Point(57, 19);
-            this.textBox_nhập_mã_khách_hàng.Name = "textBox_nhập_mã_khách_hàng";
-            this.textBox_nhập_mã_khách_hàng.Size = new System.Drawing.Size(169, 20);
-            this.textBox_nhập_mã_khách_hàng.TabIndex = 1;
+            this.textBox_maKH.Location = new System.Drawing.Point(57, 19);
+            this.textBox_maKH.Name = "textBox_maKH";
+            this.textBox_maKH.Size = new System.Drawing.Size(169, 20);
+            this.textBox_maKH.TabIndex = 1;
             // 
             // label1
             // 
@@ -204,7 +204,7 @@ namespace Tamphan_BBP_EVN_WF
         #endregion
         private System.Windows.Forms.Panel panel_account_lẻ;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox_nhập_mã_khách_hàng;
+        private System.Windows.Forms.TextBox textBox_maKH;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox_password;
         private System.Windows.Forms.Button button_Login_account_riêng_lẻ;

@@ -38,7 +38,7 @@ namespace Tamphan_BBP_EVN_WF.Services
                             Id = ws.Cell(row, "A").GetString(),
                             MaKH = maKH,
                             MucDichSuDung = ws.Cell(row, "K").GetString(),
-                            TenDangNhap = ws.Cell(row, "F").GetString(),
+                            Username = ws.Cell(row, "F").GetString(),
                             Password = ws.Cell(row, "G").GetString()
                         });
                     }

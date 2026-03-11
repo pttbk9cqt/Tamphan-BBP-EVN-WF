@@ -13,15 +13,17 @@ namespace Tamphan_BBP_EVN_WF
     public partial class EVNSPC_WEB_LOGIN : Form
     {
         private string _maKH;
+        private string _username;
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess = false;
-        private ExcelAccountEVNService _excelService;
+        private ExcelAccountEVNService excelService;
 
-        public EVNSPC_WEB_LOGIN(string maKH, string tenDangNhap, ExcelAccountEVNService service)
+        public EVNSPC_WEB_LOGIN(string maKH, string username, ExcelAccountEVNService service)
         {
             InitializeComponent();
             _maKH = maKH;
-            _excelService = new ExcelAccountEVNService();
+            _username = username;
+            excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             _captchaHelper = new CaptchaHelper(weblogin);
@@ -52,7 +54,7 @@ namespace Tamphan_BBP_EVN_WF
 
             if (_LoginSuccess) return;
 
-            AccountEVN acc = _excelService.GetAccount(_maKH);
+            AccountEVN acc = excelService.GetAccount(_maKH);
 
             if (acc == null) 
                 return;
@@ -70,7 +72,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 if(userInput && passInput)
                 {{
-                    userInput.value = '{acc.TenDangNhap}';
+                    userInput.value = '{acc.Username}';
                     passInput.value = '{acc.Password}';
 
                     userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
@@ -112,7 +114,7 @@ namespace Tamphan_BBP_EVN_WF
 
                     if(userInput && passInput)
                     {{
-                        userInput.value = '{acc.TenDangNhap}';
+                        userInput.value = '{acc.Username}';
                         passInput.value = '{acc.Password}';
                     }}
                 }})();

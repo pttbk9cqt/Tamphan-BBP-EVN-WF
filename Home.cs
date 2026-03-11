@@ -11,7 +11,9 @@ namespace Tamphan_BBP_EVN_WF
 {
     public partial class Home : Form
     {
-        private ExcelAccountEVNService _excelService = new ExcelAccountEVNService();
+        private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
+        public string username;    //username này là tên đăng nhập ví dụ BECAMEXBINHPHUOC4...
+        public string maKH;
 
         public Home()
         {
@@ -21,7 +23,7 @@ namespace Tamphan_BBP_EVN_WF
         private void Home_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
-            _excelService.LoadData();
+            excelService.LoadData();
         }
 
         // ==============================
@@ -44,10 +46,11 @@ namespace Tamphan_BBP_EVN_WF
         // ==============================
         private AccountEVN GetAccountFromInput()
         {
-            string maKH = NormalizeMaKH(textBox_nhập_mã_khách_hàng.Text);
-            textBox_nhập_mã_khách_hàng.Text = maKH;
+            string maKH = NormalizeMaKH(textBox_maKH.Text);
+            textBox_maKH.Text = maKH;
+            username = textBox_username.Text;
 
-            AccountEVN acc = _excelService.GetAccount(maKH);
+            AccountEVN acc = excelService.GetAccount(maKH);
 
             if (acc == null)
             {
@@ -55,9 +58,9 @@ namespace Tamphan_BBP_EVN_WF
                 return null;
             }
 
-            if (string.IsNullOrWhiteSpace(textBox_username.Text) || textBox_username.Text != acc.MaKH)
+            if (string.IsNullOrWhiteSpace(textBox_username.Text) || textBox_username.Text != acc.Username)
             {
-                textBox_username.Text = acc.TenDangNhap;
+                username = maKH;
             }
 
             if (string.IsNullOrWhiteSpace(textBox_password.Text) || textBox_password.Text != acc.Password)
@@ -76,7 +79,7 @@ namespace Tamphan_BBP_EVN_WF
             var acc = GetAccountFromInput();
             if (acc == null) return;
 
-            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, acc.TenDangNhap ,_excelService);
+            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, acc.Username ,excelService);
             //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
             frm.Show();
         }
@@ -89,7 +92,7 @@ namespace Tamphan_BBP_EVN_WF
             var acc = GetAccountFromInput();
             if (acc == null) return;
 
-            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH, acc.TenDangNhap);
+            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH, acc.Username);
             frm.ShowDialog();
         }
 
@@ -163,7 +166,7 @@ namespace Tamphan_BBP_EVN_WF
 
         private void btn_import_excelsource_Click(object sender, EventArgs e)
         {
-            var list = _excelService.GetAllAccounts();
+            var list = excelService.GetAllAccounts();
 
             DataTable table = new DataTable();
             table.Columns.Add("STT");
@@ -174,7 +177,7 @@ namespace Tamphan_BBP_EVN_WF
 
             foreach (var acc in list)
             {
-                table.Rows.Add(acc.Id, acc.TenDangNhap, acc.Password, acc.MaKH, acc.MucDichSuDung);
+                table.Rows.Add(acc.Id, acc.Username, acc.Password, acc.MaKH, acc.MucDichSuDung);
             }
 
             dataGridView.DataSource = table;
@@ -201,7 +204,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 maKH = NormalizeMaKH(maKH);
 
-                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH, tenDangNhap))
+                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH, username))
                 {
                     frm.ShowDialog(); // chờ download xong
                 }
