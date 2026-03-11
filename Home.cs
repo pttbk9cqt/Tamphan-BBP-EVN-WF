@@ -1,19 +1,21 @@
-﻿using System;
+﻿using CefSharp.WinForms;
+using ExcelDataReader;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
-using System.Data;
-using System.IO;
-using ExcelDataReader;
-using System.Threading.Tasks;
 
 namespace Tamphan_BBP_EVN_WF
 {
     public partial class Home : Form
     {
         private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
-        public string username;    //username này là tên đăng nhập ví dụ BECAMEXBINHPHUOC4...
         public string maKH;
+        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string>{"PB01050036935","PB01050032992","PB01050036030","PB01050037389","PB01050039586","PB01050039344"};
 
         public Home()
         {
@@ -48,19 +50,12 @@ namespace Tamphan_BBP_EVN_WF
         {
             string maKH = NormalizeMaKH(textBox_maKH.Text);
             textBox_maKH.Text = maKH;
-            username = textBox_username.Text;
-
             AccountEVN acc = excelService.GetAccount(maKH);
 
             if (acc == null)
             {
                 MessageBox.Show("Mã khách hàng không tồn tại trong file Excel");
                 return null;
-            }
-
-            if (string.IsNullOrWhiteSpace(textBox_username.Text) || textBox_username.Text != acc.Username)
-            {
-                username = maKH;
             }
 
             if (string.IsNullOrWhiteSpace(textBox_password.Text) || textBox_password.Text != acc.Password)
@@ -78,8 +73,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             var acc = GetAccountFromInput();
             if (acc == null) return;
-
-            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, acc.Username ,excelService);
+            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, excelService);
             //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
             frm.Show();
         }
@@ -90,9 +84,18 @@ namespace Tamphan_BBP_EVN_WF
         private void btn_evn_download_Click(object sender, EventArgs e)
         {
             var acc = GetAccountFromInput();
-            if (acc == null) return;
+            if (acc == null) 
+                return;
 
-            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH, acc.Username);
+            //////phần này tra danh sách các mã đã gộp, nếu nó có nhiều mã được gộp thì download sẽ bị sai, trả file pdf đúng tên đúng mã KH nhưng không đúng hóa đơn, nó sẽ nhầm sang căn khác nên phải ngăn ngừa
+
+            if (danhsachmaKHcoGopMa.Contains(acc.MaKH))
+            {
+                MessageBox.Show("Mã KH được gộp, có nhiều thông báo và hóa đơn, cần tải riêng lẻ");
+                return;
+            }
+            //////////////////////////////////////////////////////////////
+            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH);
             frm.ShowDialog();
         }
 
@@ -204,7 +207,7 @@ namespace Tamphan_BBP_EVN_WF
 
                 maKH = NormalizeMaKH(maKH);
 
-                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH, username))
+                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH))
                 {
                     frm.ShowDialog(); // chờ download xong
                 }

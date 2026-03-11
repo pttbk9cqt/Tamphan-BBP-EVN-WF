@@ -31,8 +31,6 @@ namespace Tamphan_BBP_EVN_WF
         private void InitializeComponent()
         {
             this.panel_account_lẻ = new System.Windows.Forms.Panel();
-            this.textBox_username = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.button_Login_account_riêng_lẻ = new System.Windows.Forms.Button();
             this.textBox_password = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -50,37 +48,19 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // panel_account_lẻ
             // 
-            this.panel_account_lẻ.Controls.Add(this.textBox_username);
-            this.panel_account_lẻ.Controls.Add(this.label4);
             this.panel_account_lẻ.Controls.Add(this.button_Login_account_riêng_lẻ);
             this.panel_account_lẻ.Controls.Add(this.textBox_password);
             this.panel_account_lẻ.Controls.Add(this.label2);
             this.panel_account_lẻ.Controls.Add(this.textBox_maKH);
             this.panel_account_lẻ.Controls.Add(this.label1);
-            this.panel_account_lẻ.Location = new System.Drawing.Point(47, 12);
+            this.panel_account_lẻ.Location = new System.Drawing.Point(155, 12);
             this.panel_account_lẻ.Name = "panel_account_lẻ";
-            this.panel_account_lẻ.Size = new System.Drawing.Size(847, 60);
+            this.panel_account_lẻ.Size = new System.Drawing.Size(549, 60);
             this.panel_account_lẻ.TabIndex = 4;
-            // 
-            // textBox_username
-            // 
-            this.textBox_username.Location = new System.Drawing.Point(337, 19);
-            this.textBox_username.Name = "textBox_username";
-            this.textBox_username.Size = new System.Drawing.Size(193, 20);
-            this.textBox_username.TabIndex = 6;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(252, 22);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(81, 13);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Tên đăng nhập";
             // 
             // button_Login_account_riêng_lẻ
             // 
-            this.button_Login_account_riêng_lẻ.Location = new System.Drawing.Point(729, 19);
+            this.button_Login_account_riêng_lẻ.Location = new System.Drawing.Point(456, 23);
             this.button_Login_account_riêng_lẻ.Name = "button_Login_account_riêng_lẻ";
             this.button_Login_account_riêng_lẻ.Size = new System.Drawing.Size(64, 21);
             this.button_Login_account_riêng_lẻ.TabIndex = 4;
@@ -90,7 +70,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // textBox_password
             // 
-            this.textBox_password.Location = new System.Drawing.Point(587, 19);
+            this.textBox_password.Location = new System.Drawing.Point(313, 23);
             this.textBox_password.Name = "textBox_password";
             this.textBox_password.Size = new System.Drawing.Size(121, 20);
             this.textBox_password.TabIndex = 3;
@@ -98,7 +78,7 @@ namespace Tamphan_BBP_EVN_WF
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(551, 22);
+            this.label2.Location = new System.Drawing.Point(277, 26);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(30, 13);
             this.label2.TabIndex = 2;
@@ -106,7 +86,7 @@ namespace Tamphan_BBP_EVN_WF
             // 
             // textBox_maKH
             // 
-            this.textBox_maKH.Location = new System.Drawing.Point(57, 19);
+            this.textBox_maKH.Location = new System.Drawing.Point(78, 22);
             this.textBox_maKH.Name = "textBox_maKH";
             this.textBox_maKH.Size = new System.Drawing.Size(169, 20);
             this.textBox_maKH.TabIndex = 1;
@@ -114,7 +94,7 @@ namespace Tamphan_BBP_EVN_WF
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 22);
+            this.label1.Location = new System.Drawing.Point(29, 25);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(40, 13);
             this.label1.TabIndex = 0;
@@ -214,8 +194,6 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_import_excelsource;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox textBox_username;
     }
 }
 

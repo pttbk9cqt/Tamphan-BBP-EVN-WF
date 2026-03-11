@@ -13,16 +13,14 @@ namespace Tamphan_BBP_EVN_WF
     public partial class EVNSPC_WEB_LOGIN : Form
     {
         private string _maKH;
-        private string _username;
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess = false;
         private ExcelAccountEVNService excelService;
 
-        public EVNSPC_WEB_LOGIN(string maKH, string username, ExcelAccountEVNService service)
+        public EVNSPC_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
         {
             InitializeComponent();
             _maKH = maKH;
-            _username = username;
             excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();

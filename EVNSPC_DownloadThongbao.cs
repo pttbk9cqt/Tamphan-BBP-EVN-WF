@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,7 +20,7 @@ namespace Tamphan_BBP_EVN_WF
         private ExcelAccountEVNService excelService;
 
 
-        public EVNSPC_DownloadThongbao(string maKH, string username)
+        public EVNSPC_DownloadThongbao(string maKH)
         {
             InitializeComponent();
             _maKH = maKH;
@@ -62,9 +63,13 @@ namespace Tamphan_BBP_EVN_WF
             processStarted = true;
 
             AccountEVN acc = excelService.GetAccount(_maKH);
-
             if (acc == null)
+            {
+                MessageBox.Show("Không tìm thấy account");
                 return;
+            }
+
+
             await AutoLogin(acc);
         }
 
