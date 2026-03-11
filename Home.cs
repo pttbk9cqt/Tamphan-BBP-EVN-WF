@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
+using Tamphan_WorkingBCMBP_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -26,6 +27,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
             excelService.LoadData();
+            MessageBox.Show(MachineService.GetMachineId());
         }
 
         // ==============================
