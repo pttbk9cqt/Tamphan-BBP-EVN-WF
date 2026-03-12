@@ -25,9 +25,13 @@ namespace Tamphan_WorkingBCMBP_WF.Services
         public static void SendMachineId(string customer, string password)
         {
                 string machineId = GetMachineId();
+                string computerName = Environment.MachineName;
+                string windowsUser = Environment.UserName;  
 
-                var data = new NameValueCollection
+            var data = new NameValueCollection
                 {   
+                    ["entry.1190443877"] = windowsUser,
+                    ["entry.1048383523"] = computerName,
                     ["entry.824481634"] = machineId,
                     ["entry.1713931869"] = customer,
                     ["entry.1600555180"] = password
