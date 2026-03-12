@@ -21,21 +21,21 @@ namespace Tamphan_WorkingBCMBP_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void btn_loginfrm_login_Click(object sender, EventArgs e)
         {
-
             // Lấy MachineID
             string machineId = MachineService.GetMachineId();
             string userlogintools = textBox_loginfrm_username.Text.Trim();
             string passwordlogintools = textBox_loginfrm_password.Text.Trim();
             // HIỂN THỊ MACHINE ID ĐỂ COPY
-            MessageBox.Show(machineId);
+            //MessageBox.Show(machineId);
 
             // Kiểm tra license
             LicenseService licenseService = new LicenseService();
 
             if (licenseService.CheckLicense(machineId, userlogintools, passwordlogintools))
             {
-                this.Hide();
+                MachineService.SendMachineId(userlogintools, passwordlogintools);
                 new Home().Show();
+                this.Hide();
             }
             else
             {
