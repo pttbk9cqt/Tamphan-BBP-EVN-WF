@@ -28,6 +28,14 @@ namespace Tamphan_BBP_EVN_WF.Services
     {
         private readonly ChromiumWebBrowser _browser;
         private readonly CaptchaOcrService _ocrService;
+        private readonly string _captchaId;
+
+        public CaptchaHelper(ChromiumWebBrowser browser, string captchaId)
+        {
+            _browser = browser;
+            _captchaId = captchaId;
+            _ocrService = new CaptchaOcrService();
+        }
 
         public CaptchaHelper(ChromiumWebBrowser browser)
         {
@@ -40,21 +48,21 @@ namespace Tamphan_BBP_EVN_WF.Services
         // ==============================
         public async Task<CaptchaRect> GetCaptchaRectAsync()
         {
-            var jsCode = @"
-            (function () {
-                var img = document.getElementById('imgCaptcha');
-                if (!img) return null;
+            var jsCode = $@"
+                            (function () {{
+                                var img = document.getElementById('{_captchaId}');
+                                if (!img) return null;
 
-                var rect = img.getBoundingClientRect();
-                return {
-                    x: rect.left,
-                    y: rect.top,
-                    width: rect.width,
-                    height: rect.height,
-                    devicePixelRatio: window.devicePixelRatio
-                };
-            })();
-            ";
+                                var rect = img.getBoundingClientRect();
+                                return {{
+                                    x: rect.left,
+                                    y: rect.top,
+                                    width: rect.width,
+                                    height: rect.height,
+                                    devicePixelRatio: window.devicePixelRatio
+                                }};
+                            }})();
+                            ";
 
             var response = await _browser.EvaluateScriptAsync(jsCode);
 
@@ -86,12 +94,25 @@ namespace Tamphan_BBP_EVN_WF.Services
         {
             float scale = (float)rect.devicePixelRatio;
 
-            Rectangle cropRect = new Rectangle(
-                (int)(rect.x * scale),
-                (int)(rect.y * scale),
-                (int)(rect.width * scale),
-                (int)(rect.height * scale)
-            );
+            int x = (int)(rect.x * scale);
+            int y = (int)(rect.y * scale);
+            int w = (int)(rect.width * scale);
+            int h = (int)(rect.height * scale);
+
+            // đảm bảo không vượt khỏi ảnh
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+
+            if (x + w > fullImage.Width)
+                w = fullImage.Width - x;
+
+            if (y + h > fullImage.Height)
+                h = fullImage.Height - y;
+
+            if (w <= 0 || h <= 0)
+                throw new Exception("Captcha crop rect invalid");
+
+            Rectangle cropRect = new Rectangle(x, y, w, h);
 
             return fullImage.Clone(cropRect, fullImage.PixelFormat);
         }
@@ -222,3 +243,4 @@ namespace Tamphan_BBP_EVN_WF.Services
         }
     }
 }
+

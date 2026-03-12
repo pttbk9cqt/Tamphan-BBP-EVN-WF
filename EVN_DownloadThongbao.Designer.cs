@@ -1,6 +1,6 @@
 ﻿namespace Tamphan_BBP_EVN_WF
 {
-    partial class EVNSPC_DownloadThongbao
+    partial class EVN_DownloadThongbao
     {
         /// <summary>
         /// Required designer variable.

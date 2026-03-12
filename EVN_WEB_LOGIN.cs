@@ -10,21 +10,21 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class EVNSPC_WEB_LOGIN : Form
+    public partial class EVN_WEB_LOGIN : Form
     {
         private string _maKH;
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess = false;
         private ExcelAccountEVNService excelService;
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVNSPC_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
+        public EVN_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
         {
             InitializeComponent();
             _maKH = maKH;
             excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            _captchaHelper = new CaptchaHelper(weblogin);
+            _captchaHelper = new CaptchaHelper(weblogin, "imgCaptcha");
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
@@ -40,7 +40,6 @@ namespace Tamphan_BBP_EVN_WF
 
             weblogin.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
-            MousePositionHelper.Start(this);
             weblogin.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,12 +118,29 @@ namespace Tamphan_BBP_EVN_WF
                 ";
 
                 weblogin.ExecuteScriptAsync(retryScript);
-                await Task.Delay(400);
+                await Task.Delay(600);
                 await _captchaHelper.AutoFillCaptchaAsync();
                 await Task.Delay(600);
                 weblogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
             }
         }
+
+        private async void btn_changepassword_Click(object sender, EventArgs e)
+        {
+            await weblogin.EvaluateScriptAsync(@"document.querySelector('a[href=""\/TaiKhoan\/ThongTinTaiKhoan""]').click();");
+            await Task.Delay(600);
+            await weblogin.EvaluateScriptAsync(@"document.querySelector('a[href=""/TaiKhoan/ThayDoiMatKhau""]').click();");
+            await Task.Delay(600);
+            await weblogin.EvaluateScriptAsync("document.getElementById('old-password').value = '12345678';");
+            await Task.Delay(600);
+            await weblogin.EvaluateScriptAsync("document.getElementById('new-password').value = 'binhphuoc';");
+            await Task.Delay(6000);
+            await weblogin.EvaluateScriptAsync("document.getElementById('confirm-password').value = 'binhphuoc';");
+            await Task.Delay(400);
+            await weblogin.EvaluateScriptAsync("document.querySelector('input[name=\"update-btn\"]').click();");
+            await Task.Delay(400);
+        }
+
     }
 }

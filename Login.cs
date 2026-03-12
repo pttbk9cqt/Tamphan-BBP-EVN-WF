@@ -34,6 +34,7 @@ namespace Tamphan_WorkingBCMBP_WF
             //chỗ này nó tự động gửi machineId, username và pass lên server để check, nếu chưa có machineId nhưng người dùng nhập đúng Username và pass đã được lưu sẵn trong sheet Private, thì nó sẽ gửi một rows trạng thái đăng nhập lên sheet Log, và admin sẽ mở file LicenseTamphanEVNtools, copy cái machineId bên sheet Log sau đó add vào MachineID của sheet Private, thì lần đăng nhập tiếp theo ngay sau đó sẽ thành công
             if (licenseService.CheckLicense(machineId, userlogintools, passwordlogintools))
             {
+                MachineService.SendMachineId(userlogintools, passwordlogintools);
                 new Home().Show();
                 this.Hide();
             }
@@ -41,13 +42,7 @@ namespace Tamphan_WorkingBCMBP_WF
             {
                 // gửi machine mới lên server
                 MachineService.SendMachineId(userlogintools, passwordlogintools);
-
-                MessageBox.Show(
-                    "Máy này chưa được kích hoạt.\n" +
-                    "Vui lòng liên hệ admin để mở quyền sử dụng.",
-                    "License",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Máy này chưa được kích hoạt.\n" + "Vui lòng liên hệ admin để mở quyền sử dụng.", "License", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }     
     }

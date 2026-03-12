@@ -42,6 +42,7 @@ namespace Tamphan_BBP_EVN_WF
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.label3 = new System.Windows.Forms.Label();
             this.btn_import_excelsource = new System.Windows.Forms.Button();
+            this.btn_newaccount = new System.Windows.Forms.Button();
             this.panel_account_lẻ.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
@@ -158,11 +159,23 @@ namespace Tamphan_BBP_EVN_WF
             this.btn_import_excelsource.UseVisualStyleBackColor = true;
             this.btn_import_excelsource.Click += new System.EventHandler(this.btn_import_excelsource_Click);
             // 
+            // btn_newaccount
+            // 
+            this.btn_newaccount.BackColor = System.Drawing.SystemColors.Window;
+            this.btn_newaccount.Location = new System.Drawing.Point(468, 92);
+            this.btn_newaccount.Name = "btn_newaccount";
+            this.btn_newaccount.Size = new System.Drawing.Size(107, 23);
+            this.btn_newaccount.TabIndex = 15;
+            this.btn_newaccount.Text = "New account";
+            this.btn_newaccount.UseVisualStyleBackColor = false;
+            this.btn_newaccount.Click += new System.EventHandler(this.btn_newaccount_Click);
+            // 
             // Home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 576);
+            this.Controls.Add(this.btn_newaccount);
             this.Controls.Add(this.btn_import_excelsource);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.dataGridView);
@@ -194,6 +207,7 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_import_excelsource;
+        private System.Windows.Forms.Button btn_newaccount;
     }
 }
 

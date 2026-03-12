@@ -1,6 +1,6 @@
 ﻿namespace Tamphan_BBP_EVN_WF
 {
-    partial class EVNSPC_WEB_LOGIN
+    partial class EVN_WEB_LOGIN
     {
         /// <summary>
         /// Required designer variable.
@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.weblogin = new CefSharp.WinForms.ChromiumWebBrowser();
+            this.btn_changepassword = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // weblogin
@@ -39,11 +40,23 @@
             this.weblogin.Size = new System.Drawing.Size(1900, 1000);
             this.weblogin.TabIndex = 0;
             // 
+            // btn_changepassword
+            // 
+            this.btn_changepassword.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.btn_changepassword.Location = new System.Drawing.Point(21, 24);
+            this.btn_changepassword.Name = "btn_changepassword";
+            this.btn_changepassword.Size = new System.Drawing.Size(107, 23);
+            this.btn_changepassword.TabIndex = 1;
+            this.btn_changepassword.Text = "Change password";
+            this.btn_changepassword.UseVisualStyleBackColor = false;
+            this.btn_changepassword.Click += new System.EventHandler(this.btn_changepassword_Click);
+            // 
             // EVNSPC_WEB_LOGIN
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btn_changepassword);
             this.Controls.Add(this.weblogin);
             this.Name = "EVNSPC_WEB_LOGIN";
             this.Text = "EVNSPC_WEB_LOGIN";
@@ -54,5 +67,6 @@
         #endregion
 
         private CefSharp.WinForms.ChromiumWebBrowser weblogin;
+        private System.Windows.Forms.Button btn_changepassword;
     }
 }

@@ -10,7 +10,7 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class EVNSPC_DownloadThongbao : Form
+    public partial class EVN_DownloadThongbao : Form
     {
         private string _maKH;
         private CaptchaHelper captchaHelper;
@@ -20,14 +20,14 @@ namespace Tamphan_BBP_EVN_WF
         private ExcelAccountEVNService excelService;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVNSPC_DownloadThongbao(string maKH)
+        public EVN_DownloadThongbao(string maKH)
         {
             InitializeComponent();
             _maKH = maKH;
             excelService = new ExcelAccountEVNService();
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            captchaHelper = new CaptchaHelper(evndownload);
+            captchaHelper = new CaptchaHelper(evndownload, "imgCaptcha");
             invoiceInforService = new EvnInformationInvoiceService(evndownload);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,7 @@ namespace Tamphan_BBP_EVN_WF
             {
                 if (!evndownload.Address.Contains("DangNhap"))
                 {
+                    // đã đăng nhập thành công
                     return;
                 }
 
@@ -152,12 +153,26 @@ namespace Tamphan_BBP_EVN_WF
                 evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
             }
+            // ===== Nếu chạy hết 3 lần vẫn ở trang đăng nhập =====
+            if (evndownload.Address.Contains("DangNhap"))
+            {
+                MessageBox.Show($"Đăng nhập thất bại sau 3 lần.\nBỏ qua mã khách hàng: {acc.MaKH}","EVN Tool");
+                this.Close(); // đóng form
+            }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         string BuildPdfName(string maKH)
         {
             AccountEVN acc = excelService.GetAccount(maKH);
-            return acc.MucDichSuDung + "_Thông báo tiền điện tháng " + kyHoaDon + "_" + maKH + ".pdf";
+
+            if (DateTime.Today.Day <= 9)
+            {
+                return "Thông báo điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
+            }
+            else
+            {
+                return "Hóa đơn điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
+            }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void OnPdfDownloaded(string path)

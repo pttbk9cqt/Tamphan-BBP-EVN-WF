@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
+using Tamphan_WorkingBCMBP_WF;
 using Tamphan_WorkingBCMBP_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
@@ -16,7 +17,7 @@ namespace Tamphan_BBP_EVN_WF
     {
         private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
         public string maKH;
-        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string>{"PB01050036935","PB01050032992","PB01050036030","PB01050037389","PB01050039586","PB01050039344"};
+        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string>{ "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389",  "PB01050039344", "PB01050039586"};
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public Home()
@@ -76,7 +77,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             var acc = GetAccountFromInput();
             if (acc == null) return;
-            EVNSPC_WEB_LOGIN frm = new EVNSPC_WEB_LOGIN(acc.MaKH, excelService);
+            EVN_WEB_LOGIN frm = new EVN_WEB_LOGIN(acc.MaKH, excelService);
             //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
             frm.Show();
         }
@@ -97,7 +98,7 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
             //////////////////////////////////////////////////////////////
-            EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(acc.MaKH);
+            EVN_DownloadThongbao frm = new EVN_DownloadThongbao(acc.MaKH);
             frm.ShowDialog();
         }
 
@@ -162,7 +163,7 @@ namespace Tamphan_BBP_EVN_WF
                     DataTable table = result.Tables[0];
                     //dataGridView.DataSource = table;  //Hiển thị tất cả dữ liệu, kể các các cột và hàng đã hide
                     dataGridView.DataSource =
-                        table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide
+                        table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
                     dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 }
             }
@@ -200,7 +201,7 @@ namespace Tamphan_BBP_EVN_WF
             {
                 if (row.IsNewRow) continue;
 
-                string maKH = row.Cells[4].Value?.ToString(); // cột Mã KH
+                string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
                 string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
 
                 if (string.IsNullOrWhiteSpace(maKH))
@@ -208,7 +209,11 @@ namespace Tamphan_BBP_EVN_WF
 
                 maKH = NormalizeMaKH(maKH);
 
-                using (EVNSPC_DownloadThongbao frm = new EVNSPC_DownloadThongbao(maKH))
+                // nếu mã KH nằm trong danh sách gộp mã thì bỏ qua
+                if (danhsachmaKHcoGopMa.Contains(maKH))
+                    continue;
+
+                using (EVN_DownloadThongbao frm = new EVN_DownloadThongbao(maKH))
                 {
                     frm.ShowDialog(); // chờ download xong
                 }
@@ -217,6 +222,14 @@ namespace Tamphan_BBP_EVN_WF
             }
 
             MessageBox.Show("Done");
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        private void btn_newaccount_Click(object sender, EventArgs e)
+        {
+            string newuser = textBox_maKH.Text.Trim();
+            string newpassword = textBox_password.Text.Trim();
+            EVN_NewAccount frm = new EVN_NewAccount(newuser, newpassword);
+            frm.ShowDialog();
         }
     }
     
