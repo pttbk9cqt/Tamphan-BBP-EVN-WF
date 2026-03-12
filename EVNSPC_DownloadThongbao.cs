@@ -19,7 +19,7 @@ namespace Tamphan_BBP_EVN_WF
         private bool processStarted = false;
         private ExcelAccountEVNService excelService;
 
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         public EVNSPC_DownloadThongbao(string maKH)
         {
             InitializeComponent();
@@ -30,7 +30,7 @@ namespace Tamphan_BBP_EVN_WF
             captchaHelper = new CaptchaHelper(evndownload);
             invoiceInforService = new EvnInformationInvoiceService(evndownload);
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
             if (Cef.IsInitialized != true)
@@ -51,6 +51,7 @@ namespace Tamphan_BBP_EVN_WF
             evndownload.DownloadHandler = downloadHandler;
             evndownload.Load(url);
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
         {
             if (!e.Frame.IsMain) return;
@@ -72,8 +73,7 @@ namespace Tamphan_BBP_EVN_WF
 
             await AutoLogin(acc);
         }
-
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task AutoLogin(AccountEVN acc)
         {
             string loginScript = $@"
@@ -118,7 +118,7 @@ namespace Tamphan_BBP_EVN_WF
             evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
             //Application.Exit();
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task RetryLoginIfFailed(AccountEVN acc)
         {
             for (int i = 0; i < 3; i++)
@@ -153,13 +153,13 @@ namespace Tamphan_BBP_EVN_WF
                 await Task.Delay(2000);
             }
         }
-
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         string BuildPdfName(string maKH)
         {
             AccountEVN acc = excelService.GetAccount(maKH);
             return acc.MucDichSuDung + "_Thông báo tiền điện tháng " + kyHoaDon + "_" + maKH + ".pdf";
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private void OnPdfDownloaded(string path)
         {
             if (InvokeRequired)
@@ -170,7 +170,7 @@ namespace Tamphan_BBP_EVN_WF
 
             Console.WriteLine("PDF saved: " + path);
 
-            // delay nhỏ để chắc chắn file rename xong
+            // delay nhỏ để chắc chắn file rename xong, và tự đóng form sau khi tải xong
             Task.Delay(500).ContinueWith(t =>
             {
                 if (this.InvokeRequired)
@@ -186,7 +186,7 @@ namespace Tamphan_BBP_EVN_WF
                 }
             });
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btn_exporttable_Click(object sender, EventArgs e)
         {
             var list = await invoiceInforService.ExportInforAsync();

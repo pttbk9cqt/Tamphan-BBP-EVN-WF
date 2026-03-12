@@ -16,7 +16,7 @@ namespace Tamphan_BBP_EVN_WF
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess = false;
         private ExcelAccountEVNService excelService;
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         public EVNSPC_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
         {
             InitializeComponent();
@@ -26,7 +26,7 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             _captchaHelper = new CaptchaHelper(weblogin);
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
             if (Cef.IsInitialized != true)
@@ -43,7 +43,7 @@ namespace Tamphan_BBP_EVN_WF
             MousePositionHelper.Start(this);
             weblogin.Load(url);
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
         {
             if (!e.Frame.IsMain) return;
@@ -59,7 +59,7 @@ namespace Tamphan_BBP_EVN_WF
 
             await AutoLogin(acc);
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task AutoLogin(AccountEVN acc)
         {
             string loginScript = $@"
@@ -90,7 +90,7 @@ namespace Tamphan_BBP_EVN_WF
             await Task.Delay(2000);
             await RetryLoginIfFailed(acc);
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task RetryLoginIfFailed(AccountEVN acc)
         {
             for (int i = 0; i < 3; i++)

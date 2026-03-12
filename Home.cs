@@ -18,11 +18,12 @@ namespace Tamphan_BBP_EVN_WF
         public string maKH;
         private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string>{"PB01050036935","PB01050032992","PB01050036030","PB01050037389","PB01050039586","PB01050039344"};
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         public Home()
         {
             InitializeComponent();
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private void Home_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
@@ -166,8 +167,7 @@ namespace Tamphan_BBP_EVN_WF
                 }
             }
         }
-
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private void btn_import_excelsource_Click(object sender, EventArgs e)
         {
             var list = excelService.GetAllAccounts();
@@ -187,7 +187,7 @@ namespace Tamphan_BBP_EVN_WF
             dataGridView.DataSource = table;
             dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btn_multidownload_Click(object sender, EventArgs e)
         {
             if (dataGridView.Rows.Count == 0)
