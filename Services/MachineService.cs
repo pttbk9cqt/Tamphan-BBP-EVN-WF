@@ -6,8 +6,8 @@ using System.Net;
 namespace Tamphan_WorkingBCMBP_WF.Services
 {
     public static class MachineService
-    {   //cần phải tạo google form dạng khảo sát, publish nó, đồng thời mở tab RESPONSE, link nó với sheet tạo trong Google Sheet, sau đó copy link formResponse để thay thế vào biến formUrl bên dưới
-        // lưu ý khi tạo form, cần thêm 3 trường dạng "Short answer" với tên lần lượt là "MachineID", "Customer", "Password" để lưu thông tin máy và thời gian gửi
+    {   //cần phải tạo google form dạng khảo sát
+        // lưu ý khi tạo form, cần thêm 3 trường dạng "Short answer" với tên lần lượt là "MachineID", "Customer", "Password" để lưu thông tin máy và thời gian gửi, sau đó lấy Url bằng cách vào https://docs.google.com/forms, lưu ý là phải vào source tạo form nha, không phải cái excel là https://docs.google.com/spreadsheets/ đâu, thì publish nó, mở tab RESPONSE, link nó với sheet tạo trong Google Sheet, sau đó copy link formResponse để thay thế vào biến formUrl bên dưới, lúc này link mình copy được sẽ có dạng này https://docs.google.com/forms/d/e/1FAIpQLSc1pLNSl3X34MviTLKt1SRLzN4cYxuPkLRI75WJETDsQs2naQ/viewform?usp=dialog, ta phải xóa cái đuôi /viewform?usp=dialog đi và thay bằng /formResponse, thì mới có thể gửi dữ liệu vào form được, nếu không sẽ bị lỗi 404 not found, vì Google Form chỉ chấp nhận dữ liệu gửi vào đúng endpoint formResponse mà thôi, còn viewform chỉ là trang hiển thị form cho người dùng thôi, nó không nhận dữ liệu gửi vào đâu.
         private static string formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSc1pLNSl3X34MviTLKt1SRLzN4cYxuPkLRI75WJETDsQs2naQ/formResponse";
 
         public static string GetMachineId()
