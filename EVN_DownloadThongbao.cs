@@ -1,7 +1,6 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -45,7 +44,7 @@ namespace Tamphan_BBP_EVN_WF
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
             MousePositionHelper.Start(this);
             //var downloadHandler = new BlobPdfDownloadHandler(@"C:\Users\pttbk\Downloads", () => BuildPdfName(_maKH));
-            var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads"),() => BuildPdfName(_maKH));
+            var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), () => BuildPdfName(_maKH));
             //downloadHandler.PdfDownloaded += delegate (string path) {Console.WriteLine("PDF saved: " + path);}; thay thế bằng 01 dòng code ngay phía bên dưới downloadHandler.PdfDownloaded += OnPdfDownloaded; và chương trình hàm OnPdfDownloaded để sau khi tải xong sẽ tự động đóng form
             downloadHandler.PdfDownloaded += OnPdfDownloaded;
             evndownload.DownloadHandler = downloadHandler;
@@ -156,7 +155,7 @@ namespace Tamphan_BBP_EVN_WF
             // ===== Nếu chạy hết 3 lần vẫn ở trang đăng nhập =====
             if (evndownload.Address.Contains("DangNhap"))
             {
-                MessageBox.Show($"Đăng nhập thất bại sau 3 lần.\nBỏ qua mã khách hàng: {acc.MaKH}","EVN Tool");
+                MessageBox.Show($"Đăng nhập thất bại sau 3 lần.\nBỏ qua mã khách hàng: {acc.MaKH}", "EVN Tool");
                 this.Close(); // đóng form
             }
         }

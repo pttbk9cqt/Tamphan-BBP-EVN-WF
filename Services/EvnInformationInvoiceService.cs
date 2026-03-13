@@ -83,7 +83,7 @@ namespace Tamphan_BBP_EVN_WF.Services
                 ws.Column(5).Style.NumberFormat.Format = "#,##0";
 
                 //string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx");
-                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"Downloads",$"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx");
+                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", $"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx");
                 wb.SaveAs(filePath);
                 return filePath;
             }

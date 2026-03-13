@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Tamphan_BBP_EVN_WF;
-using Tamphan_WorkingBCMBP_WF.Services;
+using Tamphan_BBP_EVN_WF.Services;
 
-namespace Tamphan_WorkingBCMBP_WF
+namespace Tamphan_BBP_EVN_WF
 {
     public partial class Login : Form
     {
@@ -35,8 +27,11 @@ namespace Tamphan_WorkingBCMBP_WF
             if (licenseService.CheckLicense(machineId, userlogintools, passwordlogintools))
             {
                 MachineService.SendMachineId(userlogintools, passwordlogintools);
-                new Home().Show();
+                Home home = new Home();
+                home.Show();
                 this.Hide();
+
+                home.FormClosed += (s, args) => this.Close();
             }
             else
             {
@@ -44,6 +39,6 @@ namespace Tamphan_WorkingBCMBP_WF
                 MachineService.SendMachineId(userlogintools, passwordlogintools);
                 MessageBox.Show("Máy này chưa được kích hoạt.\n" + "Vui lòng liên hệ admin để mở quyền sử dụng.", "License", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-        }     
+        }
     }
 }

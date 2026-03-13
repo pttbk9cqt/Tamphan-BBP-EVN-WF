@@ -1,30 +1,21 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Text;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
 
-namespace Tamphan_WorkingBCMBP_WF
+namespace Tamphan_BBP_EVN_WF
 {
     public partial class EVN_NewAccount : Form
     {
         private string _newuser;
         private string _newpassword;
         private CaptchaHelper _captchaHelper;
-        private bool _LoginSuccess = false;
         public EVN_NewAccount(string newuser, string newpassword)
-        {   
+        {
             _newuser = newuser;
             _newpassword = newpassword;
             InitializeComponent();
@@ -54,7 +45,7 @@ namespace Tamphan_WorkingBCMBP_WF
             if (!e.Frame.IsMain) return;
 
             if (string.IsNullOrWhiteSpace(_newpassword))
-                { _newpassword = "binhphuoc"; }
+            { _newpassword = "binhphuoc"; }
 
             await Task.Delay(1000);
             await chrome_newaccount.EvaluateScriptAsync("document.querySelector('#FinishModalClose .btn-close').click();"); //đóng thông báo popup bật lên
@@ -79,7 +70,7 @@ namespace Tamphan_WorkingBCMBP_WF
             await creaccount_fillinfo();
         }
 
-        private async Task creaccount_fillinfo ()
+        private async Task creaccount_fillinfo()
         {
             await chrome_newaccount.EvaluateScriptAsync($"document.getElementById('idTenDangNhap').value = '{_newuser}';");
             await Task.Delay(600);

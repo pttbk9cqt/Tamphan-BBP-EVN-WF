@@ -1,4 +1,4 @@
-﻿namespace Tamphan_WorkingBCMBP_WF
+﻿namespace Tamphan_BBP_EVN_WF
 {
     partial class EVN_NewAccount
     {

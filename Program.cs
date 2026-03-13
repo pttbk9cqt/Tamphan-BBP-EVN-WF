@@ -1,8 +1,9 @@
-﻿using System;
-using System.ComponentModel;
+﻿using CefSharp;
+using CefSharp.WinForms;
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
-using Tamphan_WorkingBCMBP_WF;
-using Tamphan_WorkingBCMBP_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -10,13 +11,57 @@ namespace Tamphan_BBP_EVN_WF
     {
         [STAThread]
         static void Main()
-        {
+        {  //Dọn các subprocess còn sót từ lần chạy trước
+            foreach (var p in Process.GetProcessesByName("CefSharp.BrowserSubprocess"))
+            {
+                try 
+                { 
+                    p.Kill(); 
+                } 
+                catch 
+                { 
+                }
+            }
+
+            var settings = new CefSettings();
+            string cachePath = Path.Combine(Application.StartupPath, "cache");   // tạo folder cache trong tool
+            settings.CachePath = cachePath;
+            // nên tắt để tránh crash trên một số máy
+            settings.CefCommandLineArgs.Add("disable-gpu", "1");
+            settings.CefCommandLineArgs.Add("disable-gpu-compositing", "1");
+            settings.CefCommandLineArgs.Add("disable-extensions", "1");
+            settings.CefCommandLineArgs.Add("process-per-site", "1");
+            settings.CefCommandLineArgs.Add("disable-plugins", "1");
+            settings.CefCommandLineArgs.Add("disable-media-cache", "1");
+            settings.CefCommandLineArgs.Add("disable-component-update", "1");
+            settings.CefCommandLineArgs.Add("disable-background-networking", "1");
+            settings.CefCommandLineArgs.Add("disable-sync", "1");
+            settings.CefCommandLineArgs.Add("disable-translate", "1");
+            settings.CefCommandLineArgs.Add("disable-logging", "1");
+
+            Cef.Initialize(settings);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Login());
+
             Application.Run(new Login());
+
+            Cef.Shutdown();
+            //Buộc dọn subprocess còn đang chạy
+            foreach (var p in Process.GetProcessesByName("CefSharp.BrowserSubprocess"))
+            {
+                try
+                {
+                    p.Kill();
+                }
+                catch
+                {
+                }
+            }
             //Application.Run(new Cre1506("phanthanhtam","Mocungcunganhcungnhat@bcm26","https://eoffice.becamexbinhphuoc.com.vn/workflow/SitePages/NewWorkflow.aspx?mode=1&ListID=589dfff1-f412-41fd-8824-c48a2bf66309"));
         }
+
+
     }
 }
 

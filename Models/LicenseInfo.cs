@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Tamphan_WorkingBCMBP_WF.Models
+namespace Tamphan_BBP_EVN_WF.Models
 {
     public class LicenseInfo
     {

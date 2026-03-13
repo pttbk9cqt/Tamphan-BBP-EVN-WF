@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 public class LicenseService
 {
-       private string sheetUrl = "https://docs.google.com/spreadsheets/d/1eKYApSWPyZN-InhtzP-6RXt-5aMHklAg9KtIeeP46es/export?format=csv&gid=0"; //đây là url khi mở qua tab sheet và copy trên browser xuống
+    private string sheetUrl = "https://docs.google.com/spreadsheets/d/1eKYApSWPyZN-InhtzP-6RXt-5aMHklAg9KtIeeP46es/export?format=csv&gid=0"; //đây là url khi mở qua tab sheet và copy trên browser xuống
 
     public bool CheckLicense(string machineId, string user, string password)
     {

@@ -32,9 +32,9 @@ namespace Tamphan_BBP_EVN_WF
             if (Cef.IsInitialized != true)
             {
                 CefSettings settings = new CefSettings();
-                settings.BrowserSubprocessPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"CefSharp.BrowserSubprocess.exe");
+                settings.BrowserSubprocessPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "CefSharp.BrowserSubprocess.exe");
                 // USER AGENT CHROME THẬT
-                settings.UserAgent ="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
+                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
                 Cef.Initialize(settings);
             }
 
@@ -53,7 +53,7 @@ namespace Tamphan_BBP_EVN_WF
 
             AccountEVN acc = excelService.GetAccount(_maKH);
 
-            if (acc == null) 
+            if (acc == null)
                 return;
 
             await AutoLogin(acc);

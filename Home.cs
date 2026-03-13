@@ -1,5 +1,4 @@
-﻿using CefSharp.WinForms;
-using ExcelDataReader;
+﻿using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,8 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
-using Tamphan_WorkingBCMBP_WF;
-using Tamphan_WorkingBCMBP_WF.Services;
+using System.Diagnostics;
+using CefSharp;
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -17,12 +16,14 @@ namespace Tamphan_BBP_EVN_WF
     {
         private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
         public string maKH;
-        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string>{ "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389",  "PB01050039344", "PB01050039586"};
+        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586" };
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public Home()
         {
             InitializeComponent();
+
+            this.FormClosed += Home_FormClosed;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void Home_Load(object sender, EventArgs e)
@@ -88,7 +89,7 @@ namespace Tamphan_BBP_EVN_WF
         private void btn_evn_download_Click(object sender, EventArgs e)
         {
             var acc = GetAccountFromInput();
-            if (acc == null) 
+            if (acc == null)
                 return;
 
             //////phần này tra danh sách các mã đã gộp, nếu nó có nhiều mã được gộp thì download sẽ bị sai, trả file pdf đúng tên đúng mã KH nhưng không đúng hóa đơn, nó sẽ nhầm sang căn khác nên phải ngăn ngừa
@@ -231,6 +232,26 @@ namespace Tamphan_BBP_EVN_WF
             EVN_NewAccount frm = new EVN_NewAccount(newuser, newpassword);
             frm.ShowDialog();
         }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        private void Home_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                // tắt CefSharp
+                if (Cef.IsInitialized == true) 
+                    Cef.Shutdown();
+            }
+            catch { }
+
+            // kill các subprocess còn sót
+            foreach (var p in Process.GetProcessesByName("CefSharp.BrowserSubprocess"))
+            {
+                try { p.Kill(); } catch { }
+            }
+
+            // thoát toàn bộ ứng dụng
+            Application.Exit();
+        }
     }
-    
+
 }
