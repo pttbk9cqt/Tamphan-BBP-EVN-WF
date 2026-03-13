@@ -23,8 +23,28 @@ namespace Tamphan_BBP_EVN_WF
                 }
             }
 
+            Application.ThreadException += (sender, e) =>
+            {
+                MessageBox.Show(e.Exception.ToString(), "ThreadException");
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                MessageBox.Show(e.ExceptionObject.ToString(), "UnhandledException");
+            };
+
             var settings = new CefSettings();
             string cachePath = Path.Combine(Application.StartupPath, "cache");   // tạo folder cache trong tool
+                                                                                 // XÓA CACHE TRƯỚC KHI KHỞI TẠO CEF
+            if (Directory.Exists(cachePath))
+            {
+                try
+                {
+                    Directory.Delete(cachePath, true);
+                }
+                catch { }
+            }
+
             settings.CachePath = cachePath;
             // nên tắt để tránh crash trên một số máy
             settings.CefCommandLineArgs.Add("disable-gpu", "1");
@@ -38,6 +58,9 @@ namespace Tamphan_BBP_EVN_WF
             settings.CefCommandLineArgs.Add("disable-sync", "1");
             settings.CefCommandLineArgs.Add("disable-translate", "1");
             settings.CefCommandLineArgs.Add("disable-logging", "1");
+
+            settings.LogSeverity = LogSeverity.Info;
+            settings.LogFile = Path.Combine(Application.StartupPath, "cef.log");
 
             Cef.Initialize(settings);
 
@@ -60,8 +83,6 @@ namespace Tamphan_BBP_EVN_WF
             }
             //Application.Run(new Cre1506("phanthanhtam","Mocungcunganhcungnhat@bcm26","https://eoffice.becamexbinhphuoc.com.vn/workflow/SitePages/NewWorkflow.aspx?mode=1&ListID=589dfff1-f412-41fd-8824-c48a2bf66309"));
         }
-
-
     }
 }
 
