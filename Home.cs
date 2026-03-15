@@ -16,7 +16,8 @@ namespace Tamphan_BBP_EVN_WF
     {
         private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
         public string maKH;
-        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586" };
+        //private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586" };
+        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344" };
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public Home()

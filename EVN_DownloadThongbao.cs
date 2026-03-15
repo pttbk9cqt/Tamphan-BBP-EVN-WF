@@ -1,6 +1,7 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -104,7 +105,23 @@ namespace Tamphan_BBP_EVN_WF
             await RetryLoginIfFailed(acc);
 
             //tới đây là đã đăng nhập thành công rồi, click vào nút view thông báo/hóa đơn (nếu có thông báo thì vẫn nút đó, nếu có hóa đơn rồi thì vẫn nút tên đó không đổi)
-            evndownload.ExecuteScriptAsync("document.querySelector('a.invoice-btn.view-btn.cursor').click();");
+            //evndownload.ExecuteScriptAsync("XemHoaDonTienDien('1630062993','1','2','2026')");
+
+            //
+            var response = await evndownload.EvaluateScriptAsync(@"
+                                    Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
+                                    .map(b => b.getAttribute('onclick'))
+                                    .filter(x=>x)
+                                    ");
+            //
+            foreach (var item in (List<object>)response.Result)
+            {
+                evndownload.ExecuteScriptAsync(item.ToString());
+                await Task.Delay(10000);
+            }
+            //evndownload.ExecuteScriptAsync("document.querySelector('a.invoice-btn.view-btn.cursor').click();"); can thi mo lai
+
+            //var arrBtn = evndownload.ExecuteScriptAsync("document.querySelector('a.invoice-btn.view-btn.cursor').click();");
             await Task.Delay(5000);// chờ 5s để chắc chắn view file thông báo lên
             //click vào nút tải hóa đơn
             int X = 1350;//Convert.ToInt32(weblogin.Width * 0.711); tính ngược lại ra 1899.7; thì ở setup là 1900
