@@ -131,7 +131,7 @@ namespace Tamphan_BBP_EVN_WF.Services
                 using (Bitmap captcha = CropCaptcha(fullPage, rect))
                 {
                     // debug nếu cần
-                    captcha.Save("captcha_debug.png");
+                    //captcha.Save("captcha_debug.png");
 
                     string text = _ocrService.ReadCaptcha(captcha);
 

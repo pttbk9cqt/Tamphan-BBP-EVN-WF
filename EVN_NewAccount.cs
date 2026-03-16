@@ -26,17 +26,8 @@ namespace Tamphan_BBP_EVN_WF
 
         private async void InitBrowser()
         {
-            if (Cef.IsInitialized != true)
-            {
-                CefSettings settings = new CefSettings();
-                settings.BrowserSubprocessPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "CefSharp.BrowserSubprocess.exe");
-                // USER AGENT CHROME THẬT
-                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
-                Cef.Initialize(settings);
-            }
-
-            string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?Menu=dangky&ActiveTab=tab3";
             chrome_newaccount.FrameLoadEnd += Browser_FrameLoadEndAsync;
+            string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?Menu=dangky&ActiveTab=tab3";
             chrome_newaccount.Load(url);
         }
 

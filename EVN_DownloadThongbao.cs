@@ -33,14 +33,6 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
-            if (Cef.IsInitialized != true)
-            {
-                CefSettings settings = new CefSettings();
-                settings.BrowserSubprocessPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "CefSharp.BrowserSubprocess.exe");
-                // USER AGENT CHROME THẬT
-                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
-                Cef.Initialize(settings);
-            }
             evndownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
             MousePositionHelper.Start(this);
@@ -109,7 +101,7 @@ namespace Tamphan_BBP_EVN_WF
 
             //
             var response = await evndownload.EvaluateScriptAsync(@"
-                                    Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
+                                     Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
                                     .map(b => b.getAttribute('onclick'))
                                     .filter(x=>x)
                                     ");

@@ -2,11 +2,14 @@
 using CefSharp.WinForms;
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
+
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -17,27 +20,19 @@ namespace Tamphan_BBP_EVN_WF
         private bool _LoginSuccess = false;
         private ExcelAccountEVNService excelService;
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVN_WEB_LOGIN(string maKH, ExcelAccountEVNService service)
+        public EVN_WEB_LOGIN(string maKH, ExcelAccountEVNService ExcelAccountEVN)
         {
             InitializeComponent();
             _maKH = maKH;
-            excelService = new ExcelAccountEVNService();
+            excelService = ExcelAccountEVN;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             _captchaHelper = new CaptchaHelper(weblogin, "imgCaptcha");
         }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
-            if (Cef.IsInitialized != true)
-            {
-                CefSettings settings = new CefSettings();
-                settings.BrowserSubprocessPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "CefSharp.BrowserSubprocess.exe");
-                // USER AGENT CHROME THẬT
-                settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
-                Cef.Initialize(settings);
-            }
-
             weblogin.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
             weblogin.Load(url);
@@ -61,71 +56,52 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task AutoLogin(AccountEVN acc)
         {
-            string loginScript = $@"
-            (function()
-            {{
-                let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
-                let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
-
-                if(userInput && passInput)
-                {{
-                    userInput.value = '{acc.Username}';
-                    passInput.value = '{acc.Password}';
-
-                    userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
-                    passInput.dispatchEvent(new Event('input', {{bubbles:true}}));
-                }}
-            }})();
-            ";
-
-            // điền user pass
-            weblogin.ExecuteScriptAsync(loginScript);
-            await Task.Delay(400);
-            // captcha
-            await _captchaHelper.AutoFillCaptchaAsync();
-            await Task.Delay(800);
-            // click login
-            weblogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
-            await Task.Delay(2000);
-            await RetryLoginIfFailed(acc);
-        }
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        private async Task RetryLoginIfFailed(AccountEVN acc)
-        {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i <= 3; i++)
             {
+                // Nếu login thành công thì thoát
                 if (!weblogin.Address.Contains("DangNhap"))
                 {
                     _LoginSuccess = true;
                     return;
                 }
 
-                await Task.Delay(1000);
-                weblogin.Reload();
-                await Task.Delay(1500);
-                string retryScript = $@"
-                (function()
-                {{
-                    let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
-                    let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
+                string loginScript = $@"
+        (function()
+        {{
+            let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
+            let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
 
-                    if(userInput && passInput)
-                    {{
-                        userInput.value = '{acc.Username}';
-                        passInput.value = '{acc.Password}';
-                    }}
-                }})();
-                ";
+            if(userInput && passInput)
+            {{
+                userInput.value = '{acc.Username}';
+                passInput.value = '{acc.Password}';
 
-                weblogin.ExecuteScriptAsync(retryScript);
-                await Task.Delay(600);
+                userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
+                passInput.dispatchEvent(new Event('input', {{bubbles:true}}));
+            }}
+        }})();";
+
+                // điền user pass
+                weblogin.ExecuteScriptAsync(loginScript);
+                await Task.Delay(500);
+
+                // captcha
                 await _captchaHelper.AutoFillCaptchaAsync();
-                await Task.Delay(600);
+                await Task.Delay(700);
+
+                // click login
                 weblogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
+
+                // nếu vẫn ở trang login thì reload để thử lại
+                if (weblogin.Address.Contains("DangNhap"))
+                {
+                    weblogin.Reload();
+                    await Task.Delay(1500);
+                }
             }
         }
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btn_changepassword_Click(object sender, EventArgs e)
         {
             await weblogin.EvaluateScriptAsync(@"document.querySelector('a[href=""\/TaiKhoan\/ThongTinTaiKhoan""]').click();");
