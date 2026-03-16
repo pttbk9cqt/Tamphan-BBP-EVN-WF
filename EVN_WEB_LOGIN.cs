@@ -17,19 +17,18 @@ namespace Tamphan_BBP_EVN_WF
     {
         private string _maKH;
         private CaptchaHelper _captchaHelper;
-        private bool _LoginSuccess = false;
-        private ExcelAccountEVNService excelService;
+        private bool _LoginSuccess;
+        private AccountService _accountService;
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVN_WEB_LOGIN(string maKH, ExcelAccountEVNService ExcelAccountEVN)
+        public EVN_WEB_LOGIN(string maKH, AccountService accountService)
         {
             InitializeComponent();
             _maKH = maKH;
-            excelService = ExcelAccountEVN;
+            _accountService = accountService;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             _captchaHelper = new CaptchaHelper(weblogin, "imgCaptcha");
         }
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
@@ -46,7 +45,7 @@ namespace Tamphan_BBP_EVN_WF
 
             if (_LoginSuccess) return;
 
-            AccountEVN acc = excelService.GetAccount(_maKH);
+            AccountEVN acc = _accountService.GetAccount(_maKH);
 
             if (acc == null)
                 return;

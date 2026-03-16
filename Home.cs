@@ -14,7 +14,7 @@ namespace Tamphan_BBP_EVN_WF
 {
     public partial class Home : Form
     {
-        private ExcelAccountEVNService excelService = new ExcelAccountEVNService();
+        private AccountService _accountService = new AccountService();
         public string maKH;
         //private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586" };
         private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344" };
@@ -30,8 +30,8 @@ namespace Tamphan_BBP_EVN_WF
         private void Home_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
-            excelService.LoadData();
-            MessageBox.Show(MachineService.GetMachineId());
+            _accountService.LoadAccounts();
+            //MessageBox.Show(MachineService.GetMachineId());
         }
 
         // ==============================
@@ -56,7 +56,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             string maKH = NormalizeMaKH(textBox_maKH.Text);
             textBox_maKH.Text = maKH;
-            AccountEVN acc = excelService.GetAccount(maKH);
+            AccountEVN acc = _accountService.GetAccount(maKH);
 
             if (acc == null)
             {
@@ -79,8 +79,8 @@ namespace Tamphan_BBP_EVN_WF
         {
             var acc = GetAccountFromInput();
             if (acc == null) return;
-            EVN_WEB_LOGIN frm = new EVN_WEB_LOGIN(acc.MaKH, excelService);
-            //MessageBox.Show($"ID: {acc.Id}\n" + $"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n" + $"Pass: {acc.Password}");
+            EVN_WEB_LOGIN frm = new EVN_WEB_LOGIN(acc.MaKH, _accountService);
+            //MessageBox.Show($"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n");
             frm.Show();
         }
 
@@ -100,7 +100,7 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
             //////////////////////////////////////////////////////////////
-            EVN_DownloadThongbao frm = new EVN_DownloadThongbao(acc.MaKH);
+            EVN_DownloadThongbao frm = new EVN_DownloadThongbao(acc.MaKH, _accountService);
             frm.ShowDialog();
         }
 
@@ -173,7 +173,7 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void btn_import_excelsource_Click(object sender, EventArgs e)
         {
-            var list = excelService.GetAllAccounts();
+            var list = _accountService.GetAllAccounts();
 
             DataTable table = new DataTable();
             table.Columns.Add("STT");
@@ -215,7 +215,7 @@ namespace Tamphan_BBP_EVN_WF
                 if (danhsachmaKHcoGopMa.Contains(maKH))
                     continue;
 
-                using (EVN_DownloadThongbao frm = new EVN_DownloadThongbao(maKH))
+                using (EVN_DownloadThongbao frm = new EVN_DownloadThongbao(maKH, _accountService))
                 {
                     frm.ShowDialog(); // chờ download xong
                 }

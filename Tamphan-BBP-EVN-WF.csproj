@@ -214,10 +214,10 @@
     <Compile Include="Models\LicenseInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\BlobPdfDownloadHandler.cs" />
     <Compile Include="Services\CaptchaHelper.cs" />
-    <Compile Include="Services\EvnInformationInvoiceService.cs" />
-    <Compile Include="Services\ExcelAccountEVNService.cs" />
+    <Compile Include="Services\InvoiceService.cs" />
     <Compile Include="Services\LicenseService.cs" />
     <Compile Include="Services\MachineService.cs" />
     <Compile Include="Services\MousePositionHelper.cs" />

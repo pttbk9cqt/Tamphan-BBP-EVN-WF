@@ -14,21 +14,22 @@ namespace Tamphan_BBP_EVN_WF
     {
         private string _maKH;
         private CaptchaHelper captchaHelper;
-        private EvnInformationInvoiceService invoiceInforService;
+        private AccountService _accountService;
+        private InvoiceService _invoiceService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
-        private bool processStarted = false;
-        private ExcelAccountEVNService excelService;
+        private bool _loginProcessStarted = false;
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVN_DownloadThongbao(string maKH)
+        public EVN_DownloadThongbao(string maKH, AccountService accountService)
         {
             InitializeComponent();
             _maKH = maKH;
-            excelService = new ExcelAccountEVNService();
+            _accountService = accountService;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(evndownload, "imgCaptcha");
-            invoiceInforService = new EvnInformationInvoiceService(evndownload);
+            _invoiceService = new InvoiceService(evndownload);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
@@ -50,12 +51,12 @@ namespace Tamphan_BBP_EVN_WF
 
             if (!e.Url.Contains("DangNhap")) return;
 
-            if (processStarted) return;
+            if (_loginProcessStarted) return;
 
 
-            processStarted = true;
+            _loginProcessStarted = true;
 
-            AccountEVN acc = excelService.GetAccount(_maKH);
+            AccountEVN acc = _accountService.GetAccount(_maKH);
             if (acc == null)
             {
                 MessageBox.Show("Không tìm thấy account");
@@ -171,7 +172,7 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         string BuildPdfName(string maKH)
         {
-            AccountEVN acc = excelService.GetAccount(maKH);
+            AccountEVN acc = _accountService.GetAccount(maKH);
 
             if (DateTime.Today.Day <= 9)
             {
@@ -212,7 +213,7 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btn_exporttable_Click(object sender, EventArgs e)
         {
-            var list = await invoiceInforService.ExportInforAsync();
+            var list = await _invoiceService.GetInvoicesAsync();
 
             if (list.Count == 0)
             {
@@ -220,7 +221,7 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
 
-            string path = invoiceInforService.ExportToExcel(list, _maKH);
+            string path = _invoiceService.ExportInvoiceToExcel(list, _maKH);
             MessageBox.Show($"Xuất Excel thành công:\n{path}");
         }
     }

@@ -1,17 +1,20 @@
-﻿using ClosedXML.Excel;
+﻿using CefSharp.DevTools.CacheStorage;
+using ClosedXML.Excel;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Tamphan_BBP_EVN_WF.Models;
 
 namespace Tamphan_BBP_EVN_WF.Services
 {
-    public class ExcelAccountEVNService
+    public class AccountService
     {
         private const string ExcelPath = "Data\\Bảng quản lý cấp điện.xlsm";
-
         private Dictionary<string, AccountEVN> _cache;
-
-        public void LoadData()
+        public void LoadAccounts()
         {
             if (!File.Exists(ExcelPath))
                 return;
@@ -22,6 +25,7 @@ namespace Tamphan_BBP_EVN_WF.Services
             {
                 var ws = wb.Worksheet(1);
                 var lastRowUsed = ws.LastRowUsed();
+
                 if (lastRowUsed == null)
                     return;
 
@@ -48,8 +52,11 @@ namespace Tamphan_BBP_EVN_WF.Services
 
         public AccountEVN GetAccount(string maKH)
         {
+            if (string.IsNullOrWhiteSpace(maKH))
+                return null;
+
             if (_cache == null)
-                LoadData();
+                LoadAccounts();
 
             if (_cache.TryGetValue(maKH, out var account))
                 return account;
@@ -60,7 +67,7 @@ namespace Tamphan_BBP_EVN_WF.Services
         public List<AccountEVN> GetAllAccounts()
         {
             if (_cache == null)
-                LoadData();
+                LoadAccounts();
 
             return new List<AccountEVN>(_cache.Values);
         }

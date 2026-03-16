@@ -4,23 +4,21 @@ using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Tamphan_BBP_EVN_WF.Services
 {
-    public class EvnInformationInvoiceService
+    public class InvoiceService
     {
-        private readonly ChromiumWebBrowser _browser;
-
-        public EvnInformationInvoiceService(ChromiumWebBrowser browser)
+        private ChromiumWebBrowser _browser;
+        public InvoiceService(ChromiumWebBrowser browser)
         {
             _browser = browser;
         }
 
-        /// <summary>
-        /// Lấy danh sách hóa đơn từ bảng trên website EVN
-        /// </summary>
-        public async Task<List<dynamic>> ExportInforAsync()
+        public async Task<List<dynamic>> GetInvoicesAsync()
         {
             string script = @"(function () {
                 let rows = document.querySelectorAll('.result-tbl table tbody tr');
@@ -50,16 +48,12 @@ namespace Tamphan_BBP_EVN_WF.Services
             return (List<dynamic>)result.Result;
         }
 
-        /// <summary>
-        /// Xuất danh sách hóa đơn ra file Excel
-        /// </summary>
-        public string ExportToExcel(List<dynamic> list, String maKH)
+        public string ExportInvoiceToExcel(List<dynamic> list, string maKH)
         {
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.Worksheets.Add("HoaDonEVN");
 
-                // Header
                 ws.Cell(1, 1).Value = "STT";
                 ws.Cell(1, 2).Value = "Mã KH";
                 ws.Cell(1, 3).Value = "ID Hóa Đơn";
@@ -67,6 +61,7 @@ namespace Tamphan_BBP_EVN_WF.Services
                 ws.Cell(1, 5).Value = "Tổng Tiền";
 
                 int row = 2;
+
                 foreach (dynamic item in list)
                 {
                     ws.Cell(row, 1).Value = item.stt;
@@ -83,7 +78,12 @@ namespace Tamphan_BBP_EVN_WF.Services
                 ws.Column(5).Style.NumberFormat.Format = "#,##0";
 
                 //string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), $"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx");
-                string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", $"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx");
+                string filePath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Downloads",
+                    $"HoaDonEVN_{maKH}_{DateTime.Now:MM-yyyy}.xlsx"
+                );
+
                 wb.SaveAs(filePath);
                 return filePath;
             }
