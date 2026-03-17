@@ -1,6 +1,6 @@
 ﻿namespace Tamphan_BBP_EVN_WF
 {
-    partial class EVN_WEB_LOGIN
+    partial class frmEVNLogin
     {
         /// <summary>
         /// Required designer variable.
@@ -28,17 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.weblogin = new CefSharp.WinForms.ChromiumWebBrowser();
+            this.chromiumlogin = new CefSharp.WinForms.ChromiumWebBrowser();
             this.btn_changepassword = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // weblogin
+            // chromiumlogin
             // 
-            this.weblogin.ActivateBrowserOnCreation = false;
-            this.weblogin.Location = new System.Drawing.Point(0, 0);
-            this.weblogin.Name = "weblogin";
-            this.weblogin.Size = new System.Drawing.Size(1900, 1000);
-            this.weblogin.TabIndex = 0;
+            this.chromiumlogin.ActivateBrowserOnCreation = false;
+            this.chromiumlogin.Location = new System.Drawing.Point(0, 0);
+            this.chromiumlogin.Name = "chromiumlogin";
+            this.chromiumlogin.Size = new System.Drawing.Size(1900, 1000);
+            this.chromiumlogin.TabIndex = 0;
             // 
             // btn_changepassword
             // 
@@ -51,22 +51,22 @@
             this.btn_changepassword.UseVisualStyleBackColor = false;
             this.btn_changepassword.Click += new System.EventHandler(this.btn_changepassword_Click);
             // 
-            // EVNSPC_WEB_LOGIN
+            // frmEVNLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.btn_changepassword);
-            this.Controls.Add(this.weblogin);
-            this.Name = "EVNSPC_WEB_LOGIN";
-            this.Text = "EVNSPC_WEB_LOGIN";
+            this.Controls.Add(this.chromiumlogin);
+            this.Name = "frmEVNLogin";
+            this.Text = "TamphanTools";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private CefSharp.WinForms.ChromiumWebBrowser weblogin;
+        private CefSharp.WinForms.ChromiumWebBrowser chromiumlogin;
         private System.Windows.Forms.Button btn_changepassword;
     }
 }

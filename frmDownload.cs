@@ -10,7 +10,7 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class EVN_DownloadThongbao : Form
+    public partial class frmDownload : Form
     {
         private string _maKH;
         private CaptchaHelper captchaHelper;
@@ -18,31 +18,29 @@ namespace Tamphan_BBP_EVN_WF
         private InvoiceService _invoiceService;
         string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
         private bool _loginProcessStarted = false;
-
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVN_DownloadThongbao(string maKH, AccountService accountService)
+        public frmDownload(string maKH, AccountService accountService)
         {
             InitializeComponent();
             _maKH = maKH;
             _accountService = accountService;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            captchaHelper = new CaptchaHelper(evndownload, "imgCaptcha");
-            _invoiceService = new InvoiceService(evndownload);
+            captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
+            _invoiceService = new InvoiceService(chromiumdownload);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
-            evndownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
+            chromiumdownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
             MousePositionHelper.Start(this);
             //var downloadHandler = new BlobPdfDownloadHandler(@"C:\Users\pttbk\Downloads", () => BuildPdfName(_maKH));
             var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), () => BuildPdfName(_maKH));
-            //downloadHandler.PdfDownloaded += delegate (string path) {Console.WriteLine("PDF saved: " + path);}; thay thế bằng 01 dòng code ngay phía bên dưới downloadHandler.PdfDownloaded += OnPdfDownloaded; và chương trình hàm OnPdfDownloaded để sau khi tải xong sẽ tự động đóng form
+            //downloadHandler.PdfDownloaded += delegate (string path) {Console.WriteLine("PDF saved: " + path);}; thay thế bằng 01 dòng code ngay phía bên dưới là downloadHandler.PdfDownloaded += OnPdfDownloaded; và chương trình hàm OnPdfDownloaded để sau khi tải xong sẽ tự động đóng form
             downloadHandler.PdfDownloaded += OnPdfDownloaded;
-            evndownload.DownloadHandler = downloadHandler;
-            evndownload.Load(url);
+            chromiumdownload.DownloadHandler = downloadHandler;
+            chromiumdownload.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
@@ -53,7 +51,6 @@ namespace Tamphan_BBP_EVN_WF
 
             if (_loginProcessStarted) return;
 
-
             _loginProcessStarted = true;
 
             AccountEVN acc = _accountService.GetAccount(_maKH);
@@ -62,7 +59,6 @@ namespace Tamphan_BBP_EVN_WF
                 MessageBox.Show("Không tìm thấy account");
                 return;
             }
-
 
             await AutoLogin(acc);
         }
@@ -85,23 +81,19 @@ namespace Tamphan_BBP_EVN_WF
                 }}
             }})();
             ";
-
             // điền user pass
-            evndownload.ExecuteScriptAsync(loginScript);
+            chromiumdownload.ExecuteScriptAsync(loginScript);
             await Task.Delay(400);
             // captcha
             await captchaHelper.AutoFillCaptchaAsync();
             await Task.Delay(800);
             // click login
-            evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+            chromiumdownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
             await Task.Delay(2000);
             await RetryLoginIfFailed(acc);
-
             //tới đây là đã đăng nhập thành công rồi, click vào nút view thông báo/hóa đơn (nếu có thông báo thì vẫn nút đó, nếu có hóa đơn rồi thì vẫn nút tên đó không đổi)
             //evndownload.ExecuteScriptAsync("XemHoaDonTienDien('1630062993','1','2','2026')");
-
-            //
-            var response = await evndownload.EvaluateScriptAsync(@"
+            var response = await chromiumdownload.EvaluateScriptAsync(@"
                                      Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
                                     .map(b => b.getAttribute('onclick'))
                                     .filter(x=>x)
@@ -109,7 +101,7 @@ namespace Tamphan_BBP_EVN_WF
             //
             foreach (var item in (List<object>)response.Result)
             {
-                evndownload.ExecuteScriptAsync(item.ToString());
+                chromiumdownload.ExecuteScriptAsync(item.ToString());
                 await Task.Delay(10000);
             }
             //evndownload.ExecuteScriptAsync("document.querySelector('a.invoice-btn.view-btn.cursor').click();"); can thi mo lai
@@ -122,9 +114,9 @@ namespace Tamphan_BBP_EVN_WF
             //int X = 1365;//ứng với setup 1920
             //int Y = 165;//ứng với setup 1080
             //3 dòng dưới đây là giả lập click chuột tại tọa độ X Y
-            evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
+            chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
             await Task.Delay(150);
-            evndownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
+            chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
             //Application.Exit();
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,14 +124,14 @@ namespace Tamphan_BBP_EVN_WF
         {
             for (int i = 0; i < 3; i++)
             {
-                if (!evndownload.Address.Contains("DangNhap"))
+                if (!chromiumdownload.Address.Contains("DangNhap"))
                 {
                     // đã đăng nhập thành công
                     return;
                 }
 
                 await Task.Delay(1000);
-                evndownload.Reload();
+                chromiumdownload.Reload();
                 await Task.Delay(1500);
                 string retryScript = $@"
                 (function()
@@ -155,15 +147,15 @@ namespace Tamphan_BBP_EVN_WF
                 }})();
                 ";
 
-                evndownload.ExecuteScriptAsync(retryScript);
+                chromiumdownload.ExecuteScriptAsync(retryScript);
                 await Task.Delay(400);
                 await captchaHelper.AutoFillCaptchaAsync();
                 await Task.Delay(600);
-                evndownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+                chromiumdownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
             }
             // ===== Nếu chạy hết 3 lần vẫn ở trang đăng nhập =====
-            if (evndownload.Address.Contains("DangNhap"))
+            if (chromiumdownload.Address.Contains("DangNhap"))
             {
                 MessageBox.Show($"Đăng nhập thất bại sau 3 lần.\nBỏ qua mã khách hàng: {acc.MaKH}", "EVN Tool");
                 this.Close(); // đóng form
@@ -174,7 +166,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             AccountEVN acc = _accountService.GetAccount(maKH);
 
-            if (DateTime.Today.Day <= 9)
+            if (DateTime.Today.Day <= 10)
             {
                 return "Thông báo điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
             }
@@ -211,7 +203,7 @@ namespace Tamphan_BBP_EVN_WF
             });
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private async void btn_exporttable_Click(object sender, EventArgs e)
+        private async void btnExporttable_Click(object sender, EventArgs e)
         {
             var list = await _invoiceService.GetInvoicesAsync();
 

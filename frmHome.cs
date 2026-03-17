@@ -12,28 +12,46 @@ using CefSharp;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class Home : Form
+    public partial class frmHome : Form
     {
-        private AccountService _accountService = new AccountService();
+        private AccountService accountService = new AccountService();
         public string maKH;
-        //private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586" };
+        //private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586"};
         private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344" };
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public Home()
+        public frmHome()
         {
             InitializeComponent();
-
             this.FormClosed += Home_FormClosed;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void Home_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
-            _accountService.LoadAccounts();
-            //MessageBox.Show(MachineService.GetMachineId());
+            accountService.LoadAccounts();
         }
+        // ==============================
+        // Lấy Account từ textbox
+        // ==============================
+        private AccountEVN GetAccountFromInput()
+        {
+            string maKH = NormalizeMaKH(txtFrmHomeMaKH.Text);
+            txtFrmHomeMaKH.Text = maKH;
+            AccountEVN acc = accountService.GetAccount(maKH);
 
+            if (acc == null)
+            {
+                MessageBox.Show("Mã khách hàng không tồn tại trong file Excel");
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtFrmHomePassword.Text) || txtFrmHomePassword.Text != acc.Password)
+            {
+                txtFrmHomePassword.Text = acc.Password;
+            }
+
+            return acc;
+        }
         // ==============================
         // Chuẩn hóa Mã KH
         // ==============================
@@ -48,51 +66,24 @@ namespace Tamphan_BBP_EVN_WF
 
             return maKH;
         }
-
-        // ==============================
-        // Lấy Account từ textbox
-        // ==============================
-        private AccountEVN GetAccountFromInput()
-        {
-            string maKH = NormalizeMaKH(textBox_maKH.Text);
-            textBox_maKH.Text = maKH;
-            AccountEVN acc = _accountService.GetAccount(maKH);
-
-            if (acc == null)
-            {
-                MessageBox.Show("Mã khách hàng không tồn tại trong file Excel");
-                return null;
-            }
-
-            if (string.IsNullOrWhiteSpace(textBox_password.Text) || textBox_password.Text != acc.Password)
-            {
-                textBox_password.Text = acc.Password;
-            }
-
-            return acc;
-        }
-
         // ==============================
         // Login EVN
         // ==============================
-        private void Btn_Login_account_riêng_lẻ_Click(object sender, EventArgs e)
+        private void btnFrmHomeLogin_Click(object sender, EventArgs e)
         {
             var acc = GetAccountFromInput();
             if (acc == null) return;
-            EVN_WEB_LOGIN frm = new EVN_WEB_LOGIN(acc.MaKH, _accountService);
-            //MessageBox.Show($"Mục đích sử dụng: {acc.MucDichSuDung}\n" + $"Tên đăng nhập: {acc.MaKH}\n");
+            frmEVNLogin frm = new frmEVNLogin(acc.MaKH, accountService);
             frm.Show();
         }
-
         // ==============================
         // Download thông báo
         // ==============================
-        private void btn_evn_download_Click(object sender, EventArgs e)
+        private void btnFrmHomeOneDownload_Click(object sender, EventArgs e)
         {
             var acc = GetAccountFromInput();
             if (acc == null)
                 return;
-
             //////phần này tra danh sách các mã đã gộp, nếu nó có nhiều mã được gộp thì download sẽ bị sai, trả file pdf đúng tên đúng mã KH nhưng không đúng hóa đơn, nó sẽ nhầm sang căn khác nên phải ngăn ngừa
             if (danhsachmaKHcoGopMa.Contains(acc.MaKH))
             {
@@ -100,14 +91,11 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
             //////////////////////////////////////////////////////////////
-            EVN_DownloadThongbao frm = new EVN_DownloadThongbao(acc.MaKH, _accountService);
+            frmDownload frm = new frmDownload(acc.MaKH, accountService);
             frm.ShowDialog();
         }
-
-        // ==============================
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
-        // ==============================
-        private void panelDropExcel_DragEnter(object sender, DragEventArgs e)
+        private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -121,7 +109,7 @@ namespace Tamphan_BBP_EVN_WF
             }
         }
 
-        private void panelDropExcel_DragDrop(object sender, DragEventArgs e)
+        private void pnlDropExcel_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
@@ -138,15 +126,14 @@ namespace Tamphan_BBP_EVN_WF
 
             LoadExcel(filePath);
         }
-
         // ==============================
         // Load Excel vào DataGridView
         // ==============================
         private void LoadExcel(string filePath)
         {   // reset DataGridView trước
-            dataGridView.DataSource = null;
-            dataGridView.Rows.Clear();
-            dataGridView.Columns.Clear();
+            dgvFrmHome.DataSource = null;
+            dgvFrmHome.Rows.Clear();
+            dgvFrmHome.Columns.Clear();
 
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
@@ -164,16 +151,16 @@ namespace Tamphan_BBP_EVN_WF
 
                     DataTable table = result.Tables[0];
                     //dataGridView.DataSource = table;  //Hiển thị tất cả dữ liệu, kể các các cột và hàng đã hide
-                    dataGridView.DataSource =
+                    dgvFrmHome.DataSource =
                         table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
-                    dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                    dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 }
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private void btn_import_excelsource_Click(object sender, EventArgs e)
+        private void btnImportExcelSource_Click(object sender, EventArgs e)
         {
-            var list = _accountService.GetAllAccounts();
+            var list = accountService.GetAllAccounts();
 
             DataTable table = new DataTable();
             table.Columns.Add("STT");
@@ -187,19 +174,19 @@ namespace Tamphan_BBP_EVN_WF
                 table.Rows.Add(acc.Id, acc.Username, acc.Password, acc.MaKH, acc.MucDichSuDung);
             }
 
-            dataGridView.DataSource = table;
-            dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dgvFrmHome.DataSource = table;
+            dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private async void btn_multidownload_Click(object sender, EventArgs e)
+        private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
         {
-            if (dataGridView.Rows.Count == 0)
+            if (dgvFrmHome.Rows.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu để download");
                 return;
             }
 
-            foreach (DataGridViewRow row in dataGridView.Rows)
+            foreach (DataGridViewRow row in dgvFrmHome.Rows)
             {
                 if (row.IsNewRow) continue;
 
@@ -215,7 +202,7 @@ namespace Tamphan_BBP_EVN_WF
                 if (danhsachmaKHcoGopMa.Contains(maKH))
                     continue;
 
-                using (EVN_DownloadThongbao frm = new EVN_DownloadThongbao(maKH, _accountService))
+                using (frmDownload frm = new frmDownload(maKH, accountService))
                 {
                     frm.ShowDialog(); // chờ download xong
                 }
@@ -226,11 +213,11 @@ namespace Tamphan_BBP_EVN_WF
             MessageBox.Show("Done");
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private void btn_newaccount_Click(object sender, EventArgs e)
+        private void btnFrmHomeCreAccount_Click(object sender, EventArgs e)
         {
-            string newuser = textBox_maKH.Text.Trim();
-            string newpassword = textBox_password.Text.Trim();
-            EVN_NewAccount frm = new EVN_NewAccount(newuser, newpassword);
+            string newuser = txtFrmHomeMaKH.Text.Trim();
+            string newpassword = txtFrmHomePassword.Text.Trim();
+            frmCreAcc frm = new frmCreAcc(newuser, newpassword);
             frm.ShowDialog();
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,9 +225,9 @@ namespace Tamphan_BBP_EVN_WF
         {
             try
             {
-                // tắt CefSharp
-                if (Cef.IsInitialized == true) 
-                    Cef.Shutdown();
+            // tắt CefSharp
+            if (Cef.IsInitialized == true) 
+                Cef.Shutdown();
             }
             catch { }
 
@@ -249,7 +236,6 @@ namespace Tamphan_BBP_EVN_WF
             {
                 try { p.Kill(); } catch { }
             }
-
             // thoát toàn bộ ứng dụng
             Application.Exit();
         }

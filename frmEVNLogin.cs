@@ -13,28 +13,28 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class EVN_WEB_LOGIN : Form
+    public partial class frmEVNLogin : Form
     {
         private string _maKH;
         private CaptchaHelper _captchaHelper;
         private bool _LoginSuccess;
         private AccountService _accountService;
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public EVN_WEB_LOGIN(string maKH, AccountService accountService)
+        public frmEVNLogin(string maKH, AccountService accountService)
         {
             InitializeComponent();
             _maKH = maKH;
             _accountService = accountService;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            _captchaHelper = new CaptchaHelper(weblogin, "imgCaptcha");
+            _captchaHelper = new CaptchaHelper(chromiumlogin, "imgCaptcha");
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
         {
-            weblogin.FrameLoadEnd += Browser_FrameLoadEndAsync;
+            chromiumlogin.FrameLoadEnd += Browser_FrameLoadEndAsync;
             string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
-            weblogin.Load(url);
+            chromiumlogin.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
@@ -58,30 +58,30 @@ namespace Tamphan_BBP_EVN_WF
             for (int i = 0; i <= 3; i++)
             {
                 // Nếu login thành công thì thoát
-                if (!weblogin.Address.Contains("DangNhap"))
+                if (!chromiumlogin.Address.Contains("DangNhap"))
                 {
                     _LoginSuccess = true;
                     return;
                 }
 
                 string loginScript = $@"
-        (function()
-        {{
-            let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
-            let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
+                                        (function()
+                                        {{
+                                            let userInput = document.querySelector('input[placeholder=""TÊN ĐĂNG NHẬP""]');
+                                            let passInput = document.querySelector('input[placeholder=""MẬT KHẨU""]');
 
-            if(userInput && passInput)
-            {{
-                userInput.value = '{acc.Username}';
-                passInput.value = '{acc.Password}';
+                                            if(userInput && passInput)
+                                            {{
+                                                userInput.value = '{acc.Username}';
+                                                passInput.value = '{acc.Password}';
 
-                userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
-                passInput.dispatchEvent(new Event('input', {{bubbles:true}}));
-            }}
-        }})();";
+                                                userInput.dispatchEvent(new Event('input', {{bubbles:true}}));
+                                                passInput.dispatchEvent(new Event('input', {{bubbles:true}}));
+                                            }}
+                                        }})();";
 
                 // điền user pass
-                weblogin.ExecuteScriptAsync(loginScript);
+                chromiumlogin.ExecuteScriptAsync(loginScript);
                 await Task.Delay(500);
 
                 // captcha
@@ -89,13 +89,13 @@ namespace Tamphan_BBP_EVN_WF
                 await Task.Delay(700);
 
                 // click login
-                weblogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+                chromiumlogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
 
                 // nếu vẫn ở trang login thì reload để thử lại
-                if (weblogin.Address.Contains("DangNhap"))
+                if (chromiumlogin.Address.Contains("DangNhap"))
                 {
-                    weblogin.Reload();
+                    chromiumlogin.Reload();
                     await Task.Delay(1500);
                 }
             }
@@ -103,19 +103,18 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btn_changepassword_Click(object sender, EventArgs e)
         {
-            await weblogin.EvaluateScriptAsync(@"document.querySelector('a[href=""\/TaiKhoan\/ThongTinTaiKhoan""]').click();");
+            await chromiumlogin.EvaluateScriptAsync(@"document.querySelector('a[href=""\/TaiKhoan\/ThongTinTaiKhoan""]').click();");
             await Task.Delay(600);
-            await weblogin.EvaluateScriptAsync(@"document.querySelector('a[href=""/TaiKhoan/ThayDoiMatKhau""]').click();");
+            await chromiumlogin.EvaluateScriptAsync(@"document.querySelector('a[href=""/TaiKhoan/ThayDoiMatKhau""]').click();");
             await Task.Delay(600);
-            await weblogin.EvaluateScriptAsync("document.getElementById('old-password').value = '12345678';");
+            await chromiumlogin.EvaluateScriptAsync("document.getElementById('old-password').value = '12345678';");
             await Task.Delay(600);
-            await weblogin.EvaluateScriptAsync("document.getElementById('new-password').value = 'binhphuoc';");
+            await chromiumlogin.EvaluateScriptAsync("document.getElementById('new-password').value = 'binhphuoc';");
             await Task.Delay(6000);
-            await weblogin.EvaluateScriptAsync("document.getElementById('confirm-password').value = 'binhphuoc';");
+            await chromiumlogin.EvaluateScriptAsync("document.getElementById('confirm-password').value = 'binhphuoc';");
             await Task.Delay(400);
-            await weblogin.EvaluateScriptAsync("document.querySelector('input[name=\"update-btn\"]').click();");
+            await chromiumlogin.EvaluateScriptAsync("document.querySelector('input[name=\"update-btn\"]').click();");
             await Task.Delay(400);
         }
-
     }
 }

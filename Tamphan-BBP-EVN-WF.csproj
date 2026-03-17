@@ -180,35 +180,35 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EVN_DownloadThongbao.cs">
+    <Compile Include="frmDownload.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EVN_DownloadThongbao.Designer.cs">
-      <DependentUpon>EVN_DownloadThongbao.cs</DependentUpon>
+    <Compile Include="frmDownload.Designer.cs">
+      <DependentUpon>frmDownload.cs</DependentUpon>
     </Compile>
-    <Compile Include="EVN_WEB_LOGIN.cs">
+    <Compile Include="frmEVNLogin.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EVN_WEB_LOGIN.Designer.cs">
-      <DependentUpon>EVN_WEB_LOGIN.cs</DependentUpon>
+    <Compile Include="frmEVNLogin.Designer.cs">
+      <DependentUpon>frmEVNLogin.cs</DependentUpon>
     </Compile>
-    <Compile Include="EVN_NewAccount.cs">
+    <Compile Include="frmCreAcc.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="EVN_NewAccount.Designer.cs">
-      <DependentUpon>EVN_NewAccount.cs</DependentUpon>
+    <Compile Include="frmCreAcc.Designer.cs">
+      <DependentUpon>frmCreAcc.cs</DependentUpon>
     </Compile>
-    <Compile Include="Home.cs">
+    <Compile Include="frmHome.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Home.Designer.cs">
-      <DependentUpon>Home.cs</DependentUpon>
+    <Compile Include="frmHome.Designer.cs">
+      <DependentUpon>frmHome.cs</DependentUpon>
     </Compile>
-    <Compile Include="Login.cs">
+    <Compile Include="frmLogin.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Login.Designer.cs">
-      <DependentUpon>Login.cs</DependentUpon>
+    <Compile Include="frmLogin.Designer.cs">
+      <DependentUpon>frmLogin.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountEVN.cs" />
     <Compile Include="Models\LicenseInfo.cs" />
@@ -221,20 +221,20 @@
     <Compile Include="Services\LicenseService.cs" />
     <Compile Include="Services\MachineService.cs" />
     <Compile Include="Services\MousePositionHelper.cs" />
-    <EmbeddedResource Include="EVN_DownloadThongbao.resx">
-      <DependentUpon>EVN_DownloadThongbao.cs</DependentUpon>
+    <EmbeddedResource Include="frmDownload.resx">
+      <DependentUpon>frmDownload.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EVN_NewAccount.resx">
-      <DependentUpon>EVN_NewAccount.cs</DependentUpon>
+    <EmbeddedResource Include="frmCreAcc.resx">
+      <DependentUpon>frmCreAcc.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EVN_WEB_LOGIN.resx">
-      <DependentUpon>EVN_WEB_LOGIN.cs</DependentUpon>
+    <EmbeddedResource Include="frmEVNLogin.resx">
+      <DependentUpon>frmEVNLogin.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Home.resx">
-      <DependentUpon>Home.cs</DependentUpon>
+    <EmbeddedResource Include="frmHome.resx">
+      <DependentUpon>frmHome.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Login.resx">
-      <DependentUpon>Login.cs</DependentUpon>
+    <EmbeddedResource Include="frmLogin.resx">
+      <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

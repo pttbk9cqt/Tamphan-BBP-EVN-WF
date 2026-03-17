@@ -4,19 +4,19 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class Login : Form
+    public partial class frmLogin : Form
     {
-        public Login()
+        public frmLogin()
         {
             InitializeComponent();
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private void btn_loginfrm_login_Click(object sender, EventArgs e)
+        private void btnLogin_Click(object sender, EventArgs e)
         {
-            string userlogintools = textBox_loginfrm_username.Text.Trim();
-            string passwordlogintools = textBox_loginfrm_password.Text.Trim();
+            string LoginUsername = txtLoginUsername.Text.Trim();
+            string LoginPassword = txtLoginPassword.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(userlogintools) || string.IsNullOrWhiteSpace(passwordlogintools))
+            if (string.IsNullOrWhiteSpace(LoginUsername) || string.IsNullOrWhiteSpace(LoginPassword))
             {
                 MessageBox.Show("Vui lòng nhập Username và Password.");
                 return;
@@ -28,24 +28,24 @@ namespace Tamphan_BBP_EVN_WF
             // Ngoài ra, thêm try catch để nếu server lỗi, mạng lỗi hoặc Google Sheet API lỗi tránh app có thể crash, và sẽ hiện thông báo lỗi kết nối
             try
             {
-                if (licenseService.CheckLicense(machineId, userlogintools, passwordlogintools))
+                if (licenseService.CheckLicense(machineId, LoginUsername, LoginPassword))
                 {
-                    MachineService.SendMachineId(userlogintools, passwordlogintools);
-                    Home home = new Home();
-                    home.Show();
+                    MachineService.SendMachineId(LoginUsername, LoginPassword);
+                    frmHome Home = new frmHome();
+                    Home.Show();
                     this.Hide();
                     // Khi form Home đóng lại thì form Login cũng sẽ đóng theo
-                    home.FormClosed += (s, args) => this.Close();
+                    Home.FormClosed += (s, args) => this.Close();
                 }
                 else
                 {
-                    MachineService.SendMachineId(userlogintools, passwordlogintools);
+                    MachineService.SendMachineId(LoginUsername, LoginPassword);
                     MessageBox.Show("Máy này chưa được kích hoạt.\n" + "Vui lòng liên hệ admin để mở quyền sử dụng.", "License", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không thể kết nối server.\n" + ex.Message,"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Không thể kết nối server.\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

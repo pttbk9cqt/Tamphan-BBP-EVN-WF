@@ -16,7 +16,7 @@ namespace Tamphan_BBP_EVN_WF
             {
                 try { p.Kill(); } catch { }
             }
-            //thêm đoạn này để bắt lỗi nếu có, tránh crash mà không biết lý do
+            //thêm đoạn này để bắt lỗi nếu có, tránh crash mà không biết lý do - dùng cho .NET
             Application.ThreadException += (sender, e) => { MessageBox.Show(e.Exception.ToString(), "ThreadException");};
             AppDomain.CurrentDomain.UnhandledException += (sender, e) => {MessageBox.Show(e.ExceptionObject.ToString(), "UnhandledException");};
             // ==============================
@@ -46,7 +46,7 @@ namespace Tamphan_BBP_EVN_WF
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
-            // log debug
+            // log cho subprocess - Cefsharp.BrowserSubprocess Chromium
             settings.LogSeverity = LogSeverity.Info;
             settings.LogFile = Path.Combine(Application.StartupPath, "cef.log");
 
@@ -57,7 +57,7 @@ namespace Tamphan_BBP_EVN_WF
             Application.SetCompatibleTextRenderingDefault(false);
             // Chạy form đăng nhập
             //Application.Run(new Login());
-            Application.Run(new Home());
+            Application.Run(new frmHome());
             // Khi form đóng, dọn CEF
             Cef.Shutdown();
             //Buộc dọn subprocess còn đang chạy
@@ -65,7 +65,6 @@ namespace Tamphan_BBP_EVN_WF
             {
                 try { p.Kill(); } catch { }
             }
-            //Application.Run(new Cre1506("phanthanhtam","Mocungcunganhcungnhat@bcm26","https://eoffice.becamexbinhphuoc.com.vn/workflow/SitePages/NewWorkflow.aspx?mode=1&ListID=589dfff1-f412-41fd-8824-c48a2bf66309"));
         }
     }
 }
