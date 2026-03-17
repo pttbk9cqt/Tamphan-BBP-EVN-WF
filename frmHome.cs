@@ -83,7 +83,7 @@ namespace Tamphan_BBP_EVN_WF
             if (acc == null)
                 return;
 
-            frmDownload frm = new frmDownload(acc.MaKH, accountService, false);
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, false);//true là chỉ down 1 maKH được nhập ở txt, false là download hết tất cả gộp có trong đăng nhập
             frm.ShowDialog();
             if (frm.IsCompleted)
             {
@@ -99,7 +99,7 @@ namespace Tamphan_BBP_EVN_WF
             if (acc == null)
                 return;
 
-            frmDownload frm = new frmDownload(acc.MaKH, accountService, true);
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, true);//true là chỉ down 1 maKH được nhập ở txt
             frm.ShowDialog();
             if (frm.IsCompleted)
             {
