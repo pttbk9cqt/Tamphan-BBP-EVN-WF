@@ -1,14 +1,15 @@
-﻿using ExcelDataReader;
+﻿using CefSharp;
+using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
 using Tamphan_BBP_EVN_WF.Services;
-using System.Diagnostics;
-using CefSharp;
 
 namespace Tamphan_BBP_EVN_WF
 {
@@ -109,6 +110,44 @@ namespace Tamphan_BBP_EVN_WF
         // ==============================
         // Download những thông báo được thả trong DataGridView
         // ==============================
+        //private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
+        //{
+        //    if (dgvFrmHome.Rows.Count == 0)
+        //    {
+        //        MessageBox.Show("Không có dữ liệu để download");
+        //        return;
+        //    }
+
+        //    foreach (DataGridViewRow row in dgvFrmHome.Rows)
+        //    {   //Trong DataGridView của WinForms luôn có 1 dòng cuối cùng để nhập thêm dữ liệu (dòng trống có dấu * bên trái).Dòng đó chính là New Row
+        //        //row.IsNewRow == true → đây là dòng trống để user nhập
+        //        //row.IsNewRow == false → là dữ liệu thật
+        //        //Ý nghĩa đoạn code
+        //        //Nếu gặp dòng trống(dòng nhập mới) → bỏ qua, không xử lý
+        //        if (row.IsNewRow)
+        //            continue;//ngay khi chạy lệnh này, toàn bộ đoạn code ở dưới sẽ bỏ qua, và trở về vòng lặp tiếp theo
+
+        //        string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
+        //        string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
+        //        string gopMa = row.Cells[4].Value?.ToString(); // cột gộp mã của Mã KH
+
+        //        if (string.IsNullOrWhiteSpace(maKH))
+        //            continue;
+
+        //        maKH = NormalizeMaKH(maKH);
+
+        //        using (frmDownload frm = new frmDownload(maKH, accountService, false))
+        //        {
+        //            frm.ShowDialog(); // chờ download xong
+        //        }
+
+        //        await Task.Delay(1000); // nghỉ 1s tránh EVN block
+        //    }
+        //    MessageBox.Show("Done");
+        //}
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        //phía trên là đoạn download tất cả các rows trong table datagridview mình đưa vào, nhưng duyệt từng row → mở frmDownload từng cái → không tối ưu do là ở những mã gộp thì nó sẽ download trùng lại. Và dưới đây là đoạn gom nhóm theo gopMa, sau đó mỗi nhóm → lấy list maKH → truyền vào frmDownload
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
         {
             if (dgvFrmHome.Rows.Count == 0)
@@ -117,28 +156,39 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
 
-            foreach (DataGridViewRow row in dgvFrmHome.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
-                string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
-
-                if (string.IsNullOrWhiteSpace(maKH))
-                    continue;
-
-                maKH = NormalizeMaKH(maKH);
-
-                using (frmDownload frm = new frmDownload(maKH, accountService, false))
+            // 1. Gom nhóm theo gopMa
+            var groups = dgvFrmHome.Rows
+                .Cast<DataGridViewRow>()
+                .Where(r => !r.IsNewRow)
+                .Select(r => new
                 {
-                    frm.ShowDialog(); // chờ download xong
+                    MaKH = r.Cells[5].Value?.ToString(),
+                    TenDangNhap = r.Cells[2].Value?.ToString(),
+                    GopMa = r.Cells[4].Value?.ToString()
+                })
+                .Where(x => !string.IsNullOrWhiteSpace(x.MaKH))
+                .GroupBy(x => x.GopMa);
+
+            // 2. Duyệt từng group
+            foreach (var group in groups)
+            {
+                // Lấy danh sách maKH cùng gopMa
+                var listMaKH = group.Select(x => NormalizeMaKH(x.MaKH)).Distinct().ToList();
+
+                // Gọi 1 lần cho cả nhóm
+                using (frmDownload frm = new frmDownload(listMaKH, accountService, false))
+                {
+                    frm.ShowDialog();
                 }
 
-                await Task.Delay(1000); // nghỉ 1s tránh EVN block
+                await Task.Delay(1000); // tránh bị block
             }
 
             MessageBox.Show("Done");
         }
+
+
+
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
         private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
         {

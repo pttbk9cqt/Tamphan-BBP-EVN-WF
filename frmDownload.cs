@@ -14,6 +14,7 @@ namespace Tamphan_BBP_EVN_WF
     public partial class frmDownload : Form
     {
         private string _maKH;
+        private List<string> _listMaKH;
         private AccountEVN _account;
         private CaptchaHelper captchaHelper;
         private AccountService _accountService;
@@ -28,6 +29,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             InitializeComponent();
             _maKH = maKH;
+            _listMaKH = new List<string> { maKH }; //convert sang list
             _accountService = accountService;
             _downloadSingleOnly = downloadSingleOnly;
             _account = _accountService.GetAccount(_maKH);
@@ -35,6 +37,13 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload);
+        }
+
+        public frmDownload(List<string> listMaKH, AccountService accountService, bool flag)
+        {
+            InitializeComponent();
+
+            _listMaKH = listMaKH;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
