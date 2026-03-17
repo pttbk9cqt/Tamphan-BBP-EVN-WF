@@ -16,8 +16,6 @@ namespace Tamphan_BBP_EVN_WF
     {
         private AccountService accountService = new AccountService();
         public string maKH;
-        //private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344", "PB01050039586"};
-        private static readonly HashSet<string> danhsachmaKHcoGopMa = new HashSet<string> { "PB01050032992", "PB01050036030", "PB01050036935", "PB01050037389", "PB01050039344" };
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmHome()
         {
@@ -77,22 +75,69 @@ namespace Tamphan_BBP_EVN_WF
             frm.Show();
         }
         // ==============================
-        // Download thông báo
+        // Download thông báo (tất cả thông báo nhìn thấy - nếu gộp mã, hoặc 1 thông báo với cái không gộp)
         // ==============================
-        private void btnFrmHomeOneDownload_Click(object sender, EventArgs e)
+        private void btnFrmHomeOneMakhALLDownload_Click(object sender, EventArgs e)
         {
             var acc = GetAccountFromInput();
             if (acc == null)
                 return;
-            //////phần này tra danh sách các mã đã gộp, nếu nó có nhiều mã được gộp thì download sẽ bị sai, trả file pdf đúng tên đúng mã KH nhưng không đúng hóa đơn, nó sẽ nhầm sang căn khác nên phải ngăn ngừa
-            if (danhsachmaKHcoGopMa.Contains(acc.MaKH))
+
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, false);
+            frm.ShowDialog();
+            if (frm.IsCompleted)
             {
-                MessageBox.Show("Mã KH được gộp, có nhiều thông báo và hóa đơn, cần tải riêng lẻ");
+                MessageBox.Show("Đã tải xong toàn bộ hóa đơn!");
+            }
+        }
+        // ==============================
+        // Download thông báo (chỉ 1 thông báo - kể cả gộp và không gộp)
+        // ==============================
+        private void btnFrmHomeOnlyMakhInput_Click(object sender, EventArgs e)
+        {
+            var acc = GetAccountFromInput();
+            if (acc == null)
+                return;
+
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, true);
+            frm.ShowDialog();
+            if (frm.IsCompleted)
+            {
+                MessageBox.Show("Done!");
+            }
+        }
+        // ==============================
+        // Download những thông báo được thả trong DataGridView
+        // ==============================
+        private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
+        {
+            if (dgvFrmHome.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để download");
                 return;
             }
-            //////////////////////////////////////////////////////////////
-            frmDownload frm = new frmDownload(acc.MaKH, accountService);
-            frm.ShowDialog();
+
+            foreach (DataGridViewRow row in dgvFrmHome.Rows)
+            {
+                if (row.IsNewRow) continue;
+
+                string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
+                string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
+
+                if (string.IsNullOrWhiteSpace(maKH))
+                    continue;
+
+                maKH = NormalizeMaKH(maKH);
+
+                using (frmDownload frm = new frmDownload(maKH, accountService, false))
+                {
+                    frm.ShowDialog(); // chờ download xong
+                }
+
+                await Task.Delay(1000); // nghỉ 1s tránh EVN block
+            }
+
+            MessageBox.Show("Done");
         }
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
         private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
@@ -151,13 +196,14 @@ namespace Tamphan_BBP_EVN_WF
 
                     DataTable table = result.Tables[0];
                     //dataGridView.DataSource = table;  //Hiển thị tất cả dữ liệu, kể các các cột và hàng đã hide
-                    dgvFrmHome.DataSource =
-                        table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
+                    dgvFrmHome.DataSource = table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
                     dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 }
             }
         }
-        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // ==============================
+        // Bắn file excel source trong Data vào DataGridView để tra cho nhanh khỏi phải mở riêng 1 file excel để tra mã
+        // ==============================
         private void btnImportExcelSource_Click(object sender, EventArgs e)
         {
             var list = accountService.GetAllAccounts();
@@ -177,42 +223,9 @@ namespace Tamphan_BBP_EVN_WF
             dgvFrmHome.DataSource = table;
             dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
-        {
-            if (dgvFrmHome.Rows.Count == 0)
-            {
-                MessageBox.Show("Không có dữ liệu để download");
-                return;
-            }
-
-            foreach (DataGridViewRow row in dgvFrmHome.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
-                string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
-
-                if (string.IsNullOrWhiteSpace(maKH))
-                    continue;
-
-                maKH = NormalizeMaKH(maKH);
-
-                // nếu mã KH nằm trong danh sách gộp mã thì bỏ qua
-                if (danhsachmaKHcoGopMa.Contains(maKH))
-                    continue;
-
-                using (frmDownload frm = new frmDownload(maKH, accountService))
-                {
-                    frm.ShowDialog(); // chờ download xong
-                }
-
-                await Task.Delay(1000); // nghỉ 1s tránh EVN block
-            }
-
-            MessageBox.Show("Done");
-        }
-        ////////////////////////////////////////////////////////////////////////////////////////////////
+        // ==============================
+        // Tạo acc mới
+        // ==============================
         private void btnFrmHomeCreAccount_Click(object sender, EventArgs e)
         {
             string newuser = txtFrmHomeMaKH.Text.Trim();
@@ -239,6 +252,7 @@ namespace Tamphan_BBP_EVN_WF
             // thoát toàn bộ ứng dụng
             Application.Exit();
         }
+
     }
 
 }

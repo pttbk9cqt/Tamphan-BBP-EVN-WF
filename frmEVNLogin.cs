@@ -82,11 +82,10 @@ namespace Tamphan_BBP_EVN_WF
 
                 // điền user pass
                 chromiumlogin.ExecuteScriptAsync(loginScript);
-                await Task.Delay(500);
-
+                await Task.Delay(2000);
                 // captcha
                 await _captchaHelper.AutoFillCaptchaAsync();
-                await Task.Delay(700);
+                await Task.Delay(1000);
 
                 // click login
                 chromiumlogin.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");

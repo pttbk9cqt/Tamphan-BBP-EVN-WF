@@ -36,13 +36,14 @@ namespace Tamphan_BBP_EVN_WF
             this.label2 = new System.Windows.Forms.Label();
             this.txtFrmHomeMaKH = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnFrmHomeOneDownload = new System.Windows.Forms.Button();
+            this.btnFrmHomeOneMakhALLDownload = new System.Windows.Forms.Button();
             this.btnFrmHomeMultiDownload = new System.Windows.Forms.Button();
             this.pnlDropExcel = new System.Windows.Forms.Panel();
             this.dgvFrmHome = new System.Windows.Forms.DataGridView();
             this.label3 = new System.Windows.Forms.Label();
             this.btnImportExcelSource = new System.Windows.Forms.Button();
             this.btnFrmHomeCreAccount = new System.Windows.Forms.Button();
+            this.btnFrmHomeOnlyMakhInput = new System.Windows.Forms.Button();
             this.pnlFrmHomeLogin.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFrmHome)).BeginInit();
             this.SuspendLayout();
@@ -101,15 +102,15 @@ namespace Tamphan_BBP_EVN_WF
             this.label1.TabIndex = 0;
             this.label1.Text = "Mã KH";
             // 
-            // btnFrmHomeOneDownload
+            // btnFrmHomeOneMakhALLDownload
             // 
-            this.btnFrmHomeOneDownload.Location = new System.Drawing.Point(155, 88);
-            this.btnFrmHomeOneDownload.Name = "btnFrmHomeOneDownload";
-            this.btnFrmHomeOneDownload.Size = new System.Drawing.Size(253, 31);
-            this.btnFrmHomeOneDownload.TabIndex = 10;
-            this.btnFrmHomeOneDownload.Text = "Download lẻ thông báo điện theo mã KH";
-            this.btnFrmHomeOneDownload.UseVisualStyleBackColor = true;
-            this.btnFrmHomeOneDownload.Click += new System.EventHandler(this.btnFrmHomeOneDownload_Click);
+            this.btnFrmHomeOneMakhALLDownload.Location = new System.Drawing.Point(47, 94);
+            this.btnFrmHomeOneMakhALLDownload.Name = "btnFrmHomeOneMakhALLDownload";
+            this.btnFrmHomeOneMakhALLDownload.Size = new System.Drawing.Size(327, 31);
+            this.btnFrmHomeOneMakhALLDownload.TabIndex = 10;
+            this.btnFrmHomeOneMakhALLDownload.Text = "Download tất cả thông báo điện/hóa đơn nhìn thấy sau Login";
+            this.btnFrmHomeOneMakhALLDownload.UseVisualStyleBackColor = true;
+            this.btnFrmHomeOneMakhALLDownload.Click += new System.EventHandler(this.btnFrmHomeOneMakhALLDownload_Click);
             // 
             // btnFrmHomeMultiDownload
             // 
@@ -162,7 +163,7 @@ namespace Tamphan_BBP_EVN_WF
             // btnFrmHomeCreAccount
             // 
             this.btnFrmHomeCreAccount.BackColor = System.Drawing.SystemColors.Window;
-            this.btnFrmHomeCreAccount.Location = new System.Drawing.Point(468, 92);
+            this.btnFrmHomeCreAccount.Location = new System.Drawing.Point(757, 35);
             this.btnFrmHomeCreAccount.Name = "btnFrmHomeCreAccount";
             this.btnFrmHomeCreAccount.Size = new System.Drawing.Size(107, 23);
             this.btnFrmHomeCreAccount.TabIndex = 15;
@@ -170,18 +171,29 @@ namespace Tamphan_BBP_EVN_WF
             this.btnFrmHomeCreAccount.UseVisualStyleBackColor = false;
             this.btnFrmHomeCreAccount.Click += new System.EventHandler(this.btnFrmHomeCreAccount_Click);
             // 
+            // btnFrmHomeOnlyMakhInput
+            // 
+            this.btnFrmHomeOnlyMakhInput.Location = new System.Drawing.Point(399, 94);
+            this.btnFrmHomeOnlyMakhInput.Name = "btnFrmHomeOnlyMakhInput";
+            this.btnFrmHomeOnlyMakhInput.Size = new System.Drawing.Size(287, 31);
+            this.btnFrmHomeOnlyMakhInput.TabIndex = 16;
+            this.btnFrmHomeOnlyMakhInput.Text = "Download đúng 1 thông báo/hóa đơn được nhập";
+            this.btnFrmHomeOnlyMakhInput.UseVisualStyleBackColor = true;
+            this.btnFrmHomeOnlyMakhInput.Click += new System.EventHandler(this.btnFrmHomeOnlyMakhInput_Click);
+            // 
             // frmHome
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 576);
+            this.Controls.Add(this.btnFrmHomeOnlyMakhInput);
             this.Controls.Add(this.btnFrmHomeCreAccount);
             this.Controls.Add(this.btnImportExcelSource);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.dgvFrmHome);
             this.Controls.Add(this.pnlDropExcel);
             this.Controls.Add(this.btnFrmHomeMultiDownload);
-            this.Controls.Add(this.btnFrmHomeOneDownload);
+            this.Controls.Add(this.btnFrmHomeOneMakhALLDownload);
             this.Controls.Add(this.pnlFrmHomeLogin);
             this.Name = "frmHome";
             this.Text = "TamphanTools-Main";
@@ -201,13 +213,14 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtFrmHomePassword;
         private System.Windows.Forms.Button btnFrmHomeLogin;
-        private System.Windows.Forms.Button btnFrmHomeOneDownload;
+        private System.Windows.Forms.Button btnFrmHomeOneMakhALLDownload;
         private System.Windows.Forms.Button btnFrmHomeMultiDownload;
         private System.Windows.Forms.Panel pnlDropExcel;
         private System.Windows.Forms.DataGridView dgvFrmHome;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnImportExcelSource;
         private System.Windows.Forms.Button btnFrmHomeCreAccount;
+        private System.Windows.Forms.Button btnFrmHomeOnlyMakhInput;
     }
 }
 
