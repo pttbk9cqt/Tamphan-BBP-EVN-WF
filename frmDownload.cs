@@ -14,7 +14,6 @@ namespace Tamphan_BBP_EVN_WF
     public partial class frmDownload : Form
     {
         private string _maKH;
-        private List<string> _listMaKH;
         private AccountEVN _account;
         private CaptchaHelper captchaHelper;
         private AccountService _accountService;
@@ -24,26 +23,24 @@ namespace Tamphan_BBP_EVN_WF
         private TaskCompletionSource<bool> _downloadCompleted;
         public bool IsCompleted { get; private set; } = false;
         private bool _downloadSingleOnly;
+        private HashSet<string> _allowedMaKH;
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly)
+        public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
         {
             InitializeComponent();
             _maKH = maKH;
-            _listMaKH = new List<string> { maKH }; //convert sang list
             _accountService = accountService;
             _downloadSingleOnly = downloadSingleOnly;
             _account = _accountService.GetAccount(_maKH);
+
+            _allowedMaKH = allowedMaKH != null
+                ? new HashSet<string>(allowedMaKH)
+                : null;
+
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload);
-        }
-
-        public frmDownload(List<string> listMaKH, AccountService accountService, bool flag)
-        {
-            InitializeComponent();
-
-            _listMaKH = listMaKH;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void InitBrowser()
@@ -110,6 +107,10 @@ namespace Tamphan_BBP_EVN_WF
                 var invoice = list.FirstOrDefault(x => x.idHoaDon == idHoaDon);
 
                 if (invoice == null) continue;
+
+                // CHẶN DOWNLOAD NGOÀI DANH SÁCH
+                if (_allowedMaKH != null && !_allowedMaKH.Contains(invoice.maKH))
+                    continue;
 
                 // CHẾ ĐỘ CHỈ 1 HÓA ĐƠN
                 if (_downloadSingleOnly && invoice.maKH != _maKH)

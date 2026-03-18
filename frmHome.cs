@@ -84,7 +84,7 @@ namespace Tamphan_BBP_EVN_WF
             if (acc == null)
                 return;
 
-            frmDownload frm = new frmDownload(acc.MaKH, accountService, false);//true là chỉ down 1 maKH được nhập ở txt, false là download hết tất cả gộp có trong đăng nhập
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, false);//chỗ true là tham số downloadSingleOnly ở frmDownload, có nghĩa là chỉ down 1 maKH được nhập ở txt thôi, không down các mã được gộp trong chung, false là download hết tất cả gộp có trong đăng nhập
             frm.ShowDialog();
             if (frm.IsCompleted)
             {
@@ -100,7 +100,7 @@ namespace Tamphan_BBP_EVN_WF
             if (acc == null)
                 return;
 
-            frmDownload frm = new frmDownload(acc.MaKH, accountService, true);//true là chỉ down 1 maKH được nhập ở txt
+            frmDownload frm = new frmDownload(acc.MaKH, accountService, true);//chỗ true là tham số downloadSingleOnly ở frmDownload, có nghĩa là chỉ down 1 maKH được nhập ở txt thôi, không down các mã được gộp trong chung
             frm.ShowDialog();
             if (frm.IsCompleted)
             {
@@ -156,38 +156,106 @@ namespace Tamphan_BBP_EVN_WF
                 return;
             }
 
-            // 1. Gom nhóm theo gopMa
-            var groups = dgvFrmHome.Rows
+            HashSet<string> downloadedMaKH = new HashSet<string>();
+            List<string> failedMaKH = new List<string>();
+
+            // 1. Lấy dữ liệu từ dgv
+            var rows = dgvFrmHome.Rows
                 .Cast<DataGridViewRow>()
                 .Where(r => !r.IsNewRow)
                 .Select(r => new
                 {
-                    MaKH = r.Cells[5].Value?.ToString(),
-                    TenDangNhap = r.Cells[2].Value?.ToString(),
+                    MaKH = NormalizeMaKH(r.Cells[5].Value?.ToString()),
                     GopMa = r.Cells[4].Value?.ToString()
                 })
                 .Where(x => !string.IsNullOrWhiteSpace(x.MaKH))
-                .GroupBy(x => x.GopMa);
+                .ToList();
 
-            // 2. Duyệt từng group
-            foreach (var group in groups)
+            // =============================
+            // 2. XỬ LÝ KHÔNG GỘP
+            // =============================
+            var khongGop = rows.Where(x => string.IsNullOrWhiteSpace(x.GopMa));
+
+            foreach (var item in khongGop)
             {
-                // Lấy danh sách maKH cùng gopMa
-                var listMaKH = group.Select(x => NormalizeMaKH(x.MaKH)).Distinct().ToList();
+                if (downloadedMaKH.Contains(item.MaKH))
+                    continue;
 
-                // Gọi 1 lần cho cả nhóm
-                using (frmDownload frm = new frmDownload(listMaKH, accountService, false))
+                using (var frm = new frmDownload(item.MaKH, accountService, true, new List<string> { item.MaKH }))
                 {
                     frm.ShowDialog();
+
+                    if (!frm.IsCompleted)
+                        failedMaKH.Add(item.MaKH);
                 }
 
-                await Task.Delay(1000); // tránh bị block
+                downloadedMaKH.Add(item.MaKH);
+                await Task.Delay(1000);
+            }
+
+            // =============================
+            // 3. XỬ LÝ CÓ GỘP
+            // =============================
+            var groups = rows
+                .Where(x => !string.IsNullOrWhiteSpace(x.GopMa))
+                .GroupBy(x => x.GopMa);
+
+            foreach (var group in groups)
+            {
+                string masterMaKH = group.Key;
+
+                if (downloadedMaKH.Contains(masterMaKH))
+                    continue;
+
+                var listMaKH = group
+                    .Select(x => x.MaKH)
+                    .Distinct()
+                    .ToList();
+
+                using (var frm = new frmDownload(masterMaKH, accountService, false, listMaKH))
+                {
+                    frm.ShowDialog();
+
+                    if (!frm.IsCompleted)
+                        failedMaKH.Add(masterMaKH);
+                }
+
+                // đánh dấu toàn bộ đã xử lý
+                foreach (var item in listMaKH)
+                {
+                    downloadedMaKH.Add(item);
+                }
+
+                await Task.Delay(1000);
+            }
+
+            // =============================
+            // 4. RETRY FAIL
+            // =============================
+            if (failedMaKH.Count > 0)
+            {
+                DialogResult rs = MessageBox.Show(
+                    $"Có {failedMaKH.Count} mã lỗi. Retry lại?",
+                    "Retry",
+                    MessageBoxButtons.YesNo
+                );
+
+                if (rs == DialogResult.Yes)
+                {
+                    foreach (var maKH in failedMaKH)
+                    {
+                        using (var frm = new frmDownload(maKH, accountService, false, new List<string> { maKH }))
+                        {
+                            frm.ShowDialog();
+                        }
+
+                        await Task.Delay(1000);
+                    }
+                }
             }
 
             MessageBox.Show("Done");
         }
-
-
 
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
         private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
