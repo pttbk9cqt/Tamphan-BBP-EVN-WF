@@ -17,6 +17,7 @@ namespace Tamphan_BBP_EVN_WF
     {
         private AccountService accountService = new AccountService();
         public string maKH;
+        List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmHome()
         {
@@ -158,6 +159,7 @@ namespace Tamphan_BBP_EVN_WF
 
             HashSet<string> downloadedMaKH = new HashSet<string>();
             List<string> failedMaKH = new List<string>();
+            List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
 
             // 1. Lấy dữ liệu từ dgv
             var rows = dgvFrmHome.Rows
@@ -184,6 +186,7 @@ namespace Tamphan_BBP_EVN_WF
                 using (var frm = new frmDownload(item.MaKH, accountService, true, new List<string> { item.MaKH }))
                 {
                     frm.ShowDialog();
+                    allFailed.AddRange(frm.FailedInvoices);
 
                     if (!frm.IsCompleted)
                         failedMaKH.Add(item.MaKH);
@@ -215,6 +218,8 @@ namespace Tamphan_BBP_EVN_WF
                 using (var frm = new frmDownload(masterMaKH, accountService, false, listMaKH))
                 {
                     frm.ShowDialog();
+                    // GOM LỖI
+                    allFailed.AddRange(frm.FailedInvoices);
 
                     if (!frm.IsCompleted)
                         failedMaKH.Add(masterMaKH);
@@ -226,8 +231,48 @@ namespace Tamphan_BBP_EVN_WF
                     downloadedMaKH.Add(item);
                 }
 
+                //Gọi export cuối cùng sau khi xử lý xong 1 nhóm, để tránh trường hợp có nhóm quá lớn mà bị lỗi nhiều quá thì mình còn biết được ngay, chứ đợi đến cuối cùng mới export thì nếu có nhiều lỗi quá thì cũng không biết được mã nào lỗi mà tra cứu thủ công
+                string file = ExportFailedToCsv(allFailed);
+
+                if (!string.IsNullOrEmpty(file))
+                {
+                    MessageBox.Show($"Có {allFailed.Count} mã lỗi.\nFile: {file}");
+                }
+
                 await Task.Delay(1000);
             }
+            //foreach (var group in groups)
+            //{
+            //    var listMaKH = group
+            //        .Select(x => x.MaKH)
+            //        .Distinct()
+            //        .ToList();
+
+            //    // 🔥 LỌC NHỮNG MÃ CHƯA DOWNLOAD
+            //    var needDownload = listMaKH
+            //        .Where(x => !downloadedMaKH.Contains(x))
+            //        .ToList();
+
+            //    if (needDownload.Count == 0)
+            //        continue;
+
+            //    string masterMaKH = needDownload.First(); // chọn đại 1 mã để login
+
+            //    using (var frm = new frmDownload(masterMaKH, accountService, false, needDownload))
+            //    {
+            //        frm.ShowDialog();
+
+            //        if (!frm.IsCompleted)
+            //            failedMaKH.Add(masterMaKH);
+            //    }
+
+            //    foreach (var item in needDownload)
+            //    {
+            //        downloadedMaKH.Add(item);
+            //    }
+
+            //    await Task.Delay(1000);
+            //}
 
             // =============================
             // 4. RETRY FAIL
@@ -256,7 +301,32 @@ namespace Tamphan_BBP_EVN_WF
 
             MessageBox.Show("Done");
         }
+        // =============================
+        // Xuất excel những mã lỗi (nếu có) sau khi download hàng loạt, để mình còn biết mà tra cứu thủ công, tránh trường hợp bỏ sót mã nào
+        // =============================
+        private string ExportFailedToCsv(List<(string maKH, string mucDich)> list)
+        {
+            if (list.Count == 0)
+                return null;
 
+            string path = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Downloads",
+                $"Failed_{DateTime.Now:yyyyMMdd_HHmmss}.csv"
+            );
+
+            using (var writer = new StreamWriter(path, false, System.Text.Encoding.UTF8))
+            {
+                writer.WriteLine("MaKH,MucDichSuDung");
+
+                foreach (var item in list.Distinct())
+                {
+                    writer.WriteLine($"{item.maKH},{item.mucDich}");
+                }
+            }
+
+            return path;
+        }
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
         private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
         {

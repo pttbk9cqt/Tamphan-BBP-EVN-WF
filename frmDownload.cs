@@ -24,6 +24,7 @@ namespace Tamphan_BBP_EVN_WF
         public bool IsCompleted { get; private set; } = false;
         private bool _downloadSingleOnly;
         private HashSet<string> _allowedMaKH;
+        public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
         {
@@ -32,11 +33,7 @@ namespace Tamphan_BBP_EVN_WF
             _accountService = accountService;
             _downloadSingleOnly = downloadSingleOnly;
             _account = _accountService.GetAccount(_maKH);
-
-            _allowedMaKH = allowedMaKH != null
-                ? new HashSet<string>(allowedMaKH)
-                : null;
-
+            _allowedMaKH = allowedMaKH != null ? new HashSet<string>(allowedMaKH) : null;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
@@ -106,7 +103,15 @@ namespace Tamphan_BBP_EVN_WF
                 // tìm dòng tương ứng
                 var invoice = list.FirstOrDefault(x => x.idHoaDon == idHoaDon);
 
-                if (invoice == null) continue;
+                if (invoice == null)
+                {
+                    continue;
+                }
+
+                string maKH = invoice.maKH;
+
+                AccountEVN accInfo = _accountService.GetAccount(maKH);
+                string mucDich = accInfo?.MucDichSuDung ?? "";
 
                 // CHẶN DOWNLOAD NGOÀI DANH SÁCH
                 if (_allowedMaKH != null && !_allowedMaKH.Contains(invoice.maKH))
@@ -117,7 +122,6 @@ namespace Tamphan_BBP_EVN_WF
                     continue;
                 found = true; //đánh dấu đã tìm thấy
 
-                string maKH = invoice.maKH;
                 chromiumdownload.ExecuteScriptAsync(onclick);//click vào nút xem thông báo/hóa đơn để mở file pdf
                 await Task.Delay(3000);
 
@@ -142,6 +146,10 @@ namespace Tamphan_BBP_EVN_WF
                 if (completed != _downloadCompleted.Task)
                 {
                     Console.WriteLine("Timeout download → skip");
+
+                    if (!FailedInvoices.Any(x => x.maKH == maKH))
+                        FailedInvoices.Add((maKH, mucDich));
+
                     continue;
                 }
                 await Task.Delay(500); // buffer nhỏ cho chắc
@@ -149,6 +157,7 @@ namespace Tamphan_BBP_EVN_WF
                 if (_downloadSingleOnly)
                     break;
             }
+
             ///Sau khi download xong hết tất cả hóa đơn kể cả mã gộp, đóng form
             if (found)
             {
@@ -238,6 +247,7 @@ namespace Tamphan_BBP_EVN_WF
         string BuildPdfName(string maKH)
         {
             AccountEVN acc = _accountService.GetAccount(maKH);
+            string mucDich = acc?.MucDichSuDung ?? "";
 
             if (DateTime.Today.Day <= 10)
             {
@@ -262,6 +272,7 @@ namespace Tamphan_BBP_EVN_WF
             // báo cho luồng chính biết là đã download xong
             _downloadCompleted?.TrySetResult(true);
         }
+ 
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btnExporttable_Click(object sender, EventArgs e)
         {
