@@ -1,10 +1,5 @@
 ﻿using CefSharp;
-using CefSharp.WinForms;
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Models;
@@ -39,11 +34,7 @@ namespace Tamphan_BBP_EVN_WF
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
         {
-            if (!e.Frame.IsMain) return;
-
-            if (!e.Url.Contains("DangNhap")) return;
-
-            if (_LoginSuccess) return;
+            if (!e.Frame.IsMain || !e.Url.Contains("DangNhap") || _LoginSuccess) return;
 
             AccountEVN acc = _accountService.GetAccount(_maKH);
 

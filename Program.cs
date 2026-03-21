@@ -17,8 +17,8 @@ namespace Tamphan_BBP_EVN_WF
                 try { p.Kill(); } catch { }
             }
             //thêm đoạn này để bắt lỗi nếu có, tránh crash mà không biết lý do - dùng cho .NET
-            Application.ThreadException += (sender, e) => { MessageBox.Show(e.Exception.ToString(), "ThreadException");};
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) => {MessageBox.Show(e.ExceptionObject.ToString(), "UnhandledException");};
+            Application.ThreadException += (sender, e) => { MessageBox.Show(e.Exception.ToString(), "ThreadException"); };
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => { MessageBox.Show(e.ExceptionObject.ToString(), "UnhandledException"); };
             // ==============================
             // Cấu hình CEF
             // ==============================

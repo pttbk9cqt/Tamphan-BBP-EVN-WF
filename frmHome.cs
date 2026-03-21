@@ -16,6 +16,7 @@ namespace Tamphan_BBP_EVN_WF
     public partial class frmHome : Form
     {
         private AccountService accountService = new AccountService();
+        private List<string> _arrayMaKH = new List<string>();
         public string maKH;
         List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,44 +112,6 @@ namespace Tamphan_BBP_EVN_WF
         // ==============================
         // Download những thông báo được thả trong DataGridView
         // ==============================
-        //private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
-        //{
-        //    if (dgvFrmHome.Rows.Count == 0)
-        //    {
-        //        MessageBox.Show("Không có dữ liệu để download");
-        //        return;
-        //    }
-
-        //    foreach (DataGridViewRow row in dgvFrmHome.Rows)
-        //    {   //Trong DataGridView của WinForms luôn có 1 dòng cuối cùng để nhập thêm dữ liệu (dòng trống có dấu * bên trái).Dòng đó chính là New Row
-        //        //row.IsNewRow == true → đây là dòng trống để user nhập
-        //        //row.IsNewRow == false → là dữ liệu thật
-        //        //Ý nghĩa đoạn code
-        //        //Nếu gặp dòng trống(dòng nhập mới) → bỏ qua, không xử lý
-        //        if (row.IsNewRow)
-        //            continue;//ngay khi chạy lệnh này, toàn bộ đoạn code ở dưới sẽ bỏ qua, và trở về vòng lặp tiếp theo
-
-        //        string maKH = row.Cells[5].Value?.ToString(); // cột Mã KH
-        //        string tenDangNhap = row.Cells[2].Value?.ToString(); // cột Tên đăng nhập
-        //        string gopMa = row.Cells[4].Value?.ToString(); // cột gộp mã của Mã KH
-
-        //        if (string.IsNullOrWhiteSpace(maKH))
-        //            continue;
-
-        //        maKH = NormalizeMaKH(maKH);
-
-        //        using (frmDownload frm = new frmDownload(maKH, accountService, false))
-        //        {
-        //            frm.ShowDialog(); // chờ download xong
-        //        }
-
-        //        await Task.Delay(1000); // nghỉ 1s tránh EVN block
-        //    }
-        //    MessageBox.Show("Done");
-        //}
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        //phía trên là đoạn download tất cả các rows trong table datagridview mình đưa vào, nhưng duyệt từng row → mở frmDownload từng cái → không tối ưu do là ở những mã gộp thì nó sẽ download trùng lại. Và dưới đây là đoạn gom nhóm theo gopMa, sau đó mỗi nhóm → lấy list maKH → truyền vào frmDownload
-        /////////////////////////////////////////////////////////////////////////////////////////////////
         private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
         {
             if (dgvFrmHome.Rows.Count == 0)
@@ -241,39 +204,6 @@ namespace Tamphan_BBP_EVN_WF
 
                 await Task.Delay(1000);
             }
-            //foreach (var group in groups)
-            //{
-            //    var listMaKH = group
-            //        .Select(x => x.MaKH)
-            //        .Distinct()
-            //        .ToList();
-
-            //    // 🔥 LỌC NHỮNG MÃ CHƯA DOWNLOAD
-            //    var needDownload = listMaKH
-            //        .Where(x => !downloadedMaKH.Contains(x))
-            //        .ToList();
-
-            //    if (needDownload.Count == 0)
-            //        continue;
-
-            //    string masterMaKH = needDownload.First(); // chọn đại 1 mã để login
-
-            //    using (var frm = new frmDownload(masterMaKH, accountService, false, needDownload))
-            //    {
-            //        frm.ShowDialog();
-
-            //        if (!frm.IsCompleted)
-            //            failedMaKH.Add(masterMaKH);
-            //    }
-
-            //    foreach (var item in needDownload)
-            //    {
-            //        downloadedMaKH.Add(item);
-            //    }
-
-            //    await Task.Delay(1000);
-            //}
-
             // =============================
             // 4. RETRY FAIL
             // =============================
@@ -386,6 +316,11 @@ namespace Tamphan_BBP_EVN_WF
                     //dataGridView.DataSource = table;  //Hiển thị tất cả dữ liệu, kể các các cột và hàng đã hide
                     dgvFrmHome.DataSource = table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
                     dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                    //
+                    List<string> valuesKH = table.AsEnumerable()
+                                          .Select(row => row["Mã Khách hàng"].ToString())
+                                          .ToList();
+                    _arrayMaKH = valuesKH;
                 }
             }
         }
@@ -426,9 +361,9 @@ namespace Tamphan_BBP_EVN_WF
         {
             try
             {
-            // tắt CefSharp
-            if (Cef.IsInitialized == true) 
-                Cef.Shutdown();
+                // tắt CefSharp
+                if (Cef.IsInitialized == true)
+                    Cef.Shutdown();
             }
             catch { }
 
@@ -441,6 +376,28 @@ namespace Tamphan_BBP_EVN_WF
             Application.Exit();
         }
 
+        private void btnDownloadAll_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_arrayMaKH.Count > 0)
+                {
+                    using (var frm = new frmDownload(_arrayMaKH, accountService))
+                    {
+                        frm.ShowDialog();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("import file excel truoc de co ma khach hang");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace);
+            }
+        }
     }
 
 }

@@ -1,8 +1,5 @@
 ﻿using CefSharp;
-using CefSharp.WinForms;
 using System;
-using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tamphan_BBP_EVN_WF.Services;

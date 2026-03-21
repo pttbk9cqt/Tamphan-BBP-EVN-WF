@@ -44,6 +44,7 @@ namespace Tamphan_BBP_EVN_WF
             this.btnImportExcelSource = new System.Windows.Forms.Button();
             this.btnFrmHomeCreAccount = new System.Windows.Forms.Button();
             this.btnFrmHomeOnlyMakhInput = new System.Windows.Forms.Button();
+            this.btnDownloadAll = new System.Windows.Forms.Button();
             this.pnlFrmHomeLogin.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFrmHome)).BeginInit();
             this.SuspendLayout();
@@ -181,11 +182,22 @@ namespace Tamphan_BBP_EVN_WF
             this.btnFrmHomeOnlyMakhInput.UseVisualStyleBackColor = true;
             this.btnFrmHomeOnlyMakhInput.Click += new System.EventHandler(this.btnFrmHomeOnlyMakhInput_Click);
             // 
+            // btnDownloadAll
+            // 
+            this.btnDownloadAll.Location = new System.Drawing.Point(510, 541);
+            this.btnDownloadAll.Name = "btnDownloadAll";
+            this.btnDownloadAll.Size = new System.Drawing.Size(179, 23);
+            this.btnDownloadAll.TabIndex = 17;
+            this.btnDownloadAll.Text = "download all";
+            this.btnDownloadAll.UseVisualStyleBackColor = true;
+            this.btnDownloadAll.Click += new System.EventHandler(this.btnDownloadAll_Click);
+            // 
             // frmHome
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(935, 576);
+            this.Controls.Add(this.btnDownloadAll);
             this.Controls.Add(this.btnFrmHomeOnlyMakhInput);
             this.Controls.Add(this.btnFrmHomeCreAccount);
             this.Controls.Add(this.btnImportExcelSource);
@@ -221,6 +233,7 @@ namespace Tamphan_BBP_EVN_WF
         private System.Windows.Forms.Button btnImportExcelSource;
         private System.Windows.Forms.Button btnFrmHomeCreAccount;
         private System.Windows.Forms.Button btnFrmHomeOnlyMakhInput;
+        private System.Windows.Forms.Button btnDownloadAll;
     }
 }
 
