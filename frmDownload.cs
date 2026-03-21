@@ -1,4 +1,5 @@
 ﻿using CefSharp;
+using CefSharp.WinForms;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ namespace Tamphan_BBP_EVN_WF
 {
     public partial class frmDownload : Form
     {
+        string _mode = "";
         private string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
         private string _maKH;
         private List<string> _arrMaKH = new List<string>();
@@ -41,6 +43,7 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload);
+            _mode = "single";
         }
         public frmDownload(List<string> arrayMaKH, AccountService accountService)
         {
@@ -52,6 +55,7 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload);
+            _mode = "all";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         ///
@@ -59,12 +63,6 @@ namespace Tamphan_BBP_EVN_WF
         {
             chromiumdownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
             MousePositionHelper.Start(this);
-            //var downloadHandler = new BlobPdfDownloadHandler(@"C:\Users\pttbk\Downloads", () => BuildPdfName(_maKH));
-            //downloadHandler.PdfDownloaded += delegate (string path) {Console.WriteLine("PDF saved: " + path);}; 
-            //thay bằng 2 dòng liền tiếp ở dưới
-            //var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), () => BuildPdfName(_maKH));
-            //downloadHandler.PdfDownloaded += OnPdfDownloaded;
-            //chromiumdownload.DownloadHandler = downloadHandler;
             chromiumdownload.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,67 +87,100 @@ namespace Tamphan_BBP_EVN_WF
             arrAllMaKH_gop = mappGop.Keys.ToList();
             arrAllMaKH_gop.Remove("no");
             //
-            Dictionary<string, List<string>> mappingMaGop_maKH_need_download = new Dictionary<string, List<string>>();
-            //
-            List<string> arrMaMK_khong_gop = arrAllMaKH_khong_gop.Where(ite => _arrMaKH.Contains(ite)).ToList();
-            List<string> arrMaKH_of_gop = _arrMaKH.Where(ite => !arrMaMK_khong_gop.Contains(ite)).ToList();
-            foreach (string item in arrMaKH_of_gop)
+            if (_mode == "all")
             {
-                foreach (string d in arrAllMaKH_gop)
+                Dictionary<string, List<string>> mappingMaGop_maKH_need_download = new Dictionary<string, List<string>>();
+                //
+                List<string> arrMaMK_khong_gop = arrAllMaKH_khong_gop.Where(ite => _arrMaKH.Contains(ite)).ToList();
+                List<string> arrMaKH_of_gop = _arrMaKH.Where(ite => !arrMaMK_khong_gop.Contains(ite)).ToList();
+                foreach (string item in arrMaKH_of_gop)
                 {
-                    List<string> arrOfDic = mappGop[d];
-                    if (arrOfDic.Contains(item))
+                    foreach (string d in arrAllMaKH_gop)
                     {
-                        if (!mappingMaGop_maKH_need_download.ContainsKey(d))
+                        List<string> arrOfDic = mappGop[d];
+                        if (arrOfDic.Contains(item))
                         {
-                            mappingMaGop_maKH_need_download.Add(d, new List<string>() { item });
-                        }
-                        else
-                        {
-                            List<string> val = mappingMaGop_maKH_need_download[d];
-                            val.Add(item);
-                            mappingMaGop_maKH_need_download[d] = val;
+                            if (!mappingMaGop_maKH_need_download.ContainsKey(d))
+                            {
+                                mappingMaGop_maKH_need_download.Add(d, new List<string>() { item });
+                            }
+                            else
+                            {
+                                List<string> val = mappingMaGop_maKH_need_download[d];
+                                val.Add(item);
+                                mappingMaGop_maKH_need_download[d] = val;
+                            }
                         }
                     }
                 }
-            }
-            //
-            //xu ly khong gop truoc
-            for (int i = 0; i < arrMaMK_khong_gop.Count; i++)
-            {
-                AccountEVN acc = _accountService.GetAccount(arrMaMK_khong_gop[i]);
-
-                await AutoLogin_T(acc);
                 //
-                await Task.Delay(1000);
-                Cef.GetGlobalCookieManager().DeleteCookies("", "");
-                await Task.Delay(1000);
-                chromiumdownload.Load(url);
-                await Task.Delay(1500);
-            }
-            //
-            //xu ly gop
-            foreach (var item in mappingMaGop_maKH_need_download)
-            {
-                AccountEVN acc = _accountService.GetAccount(item.Key);
+                //xu ly khong gop truoc
+                for (int i = 0; i < arrMaMK_khong_gop.Count; i++)
+                {
+                    AccountEVN acc = _accountService.GetAccount(arrMaMK_khong_gop[i]);
 
-                await AutoLogin_T(acc, item.Value);
+                    await AutoLoginAndDownload(acc);
+                    //
+                    await Task.Delay(1000);
+                    Cef.GetGlobalCookieManager().DeleteCookies("", "");
+                    await Task.Delay(1000);
+                    chromiumdownload.Load(url);
+                    await Task.Delay(1500);
+                }
                 //
-                await Task.Delay(1000);
-                Cef.GetGlobalCookieManager().DeleteCookies("", "");
-                chromiumdownload.Load(url);
-                await Task.Delay(1500);
+                //xu ly gop
+                foreach (var item in mappingMaGop_maKH_need_download)
+                {
+                    AccountEVN acc = _accountService.GetAccount(item.Key);
+
+                    await AutoLoginAndDownload(acc, item.Value);
+                    //
+                    await Task.Delay(1000);
+                    Cef.GetGlobalCookieManager().DeleteCookies("", "");
+                    chromiumdownload.Load(url);
+                    await Task.Delay(1500);
+                }
+                await Task.Delay(500);
+                //
+                //xong roi thi close form
+                this.Invoke(new Action(() =>
+                {
+                    this.Close();
+                }));
             }
-            await Task.Delay(500);
-            //
-            //xong roi thi close form
-            this.Invoke(new Action(() =>
+            else
             {
-                this.Close();
-            }));
+                //xu ly rieng tung cai nhap vao
+                AccountEVN accLogin = _accountService.GetAccount(_maKH);
+                //
+                if (_downloadSingleOnly)
+                {
+                    await AutoLoginAndDownload(accLogin, new List<string>() { accLogin.MaKH });
+                    //
+                    await Task.Delay(500);
+                    //
+                    //xong roi thi close form
+                    this.Invoke(new Action(() =>
+                    {
+                        this.Close();
+                    }));
+                }
+                else
+                {
+                    await AutoLoginAndDownload(accLogin);
+                    //
+                    await Task.Delay(500);
+                    //
+                    //xong roi thi close form
+                    this.Invoke(new Action(() =>
+                    {
+                        this.Close();
+                    }));
+                }
+            }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
-        private async Task AutoLogin_T(AccountEVN acc, List<string> arrMaKH_of_gop = null)
+        private async Task AutoLoginAndDownload(AccountEVN acc, List<string> arrMaKH_of_gop = null)
         {
             // điền user pass
             await FillLoginForm(acc);
@@ -178,7 +209,6 @@ namespace Tamphan_BBP_EVN_WF
                 {
                     arrOnClick.AddRange(arrAllOnClick.Where(ite => ite.ToString().Contains(item.idHoaDon)));
                 }
-                //arrOnClick = arrAllOnClick.Where(x => x.ToString().Contains(list_invoiceNeedDownload.Select(y => y.idHoaDon).ToString())).ToList();
             }
             else
             {
@@ -223,6 +253,8 @@ namespace Tamphan_BBP_EVN_WF
                 int Y = 140;//Convert.ToInt32(weblogin.Height * 0.139);tính ngược lại ra 1007.2; thì ở setup là 1000
                 //int X = 1365;//ứng với setup 1920
                 //int Y = 165;//ứng với setup 1080
+                //int width = chromiumdownload.Width;
+                //int height = chromiumdownload.Height;
                 chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
                 await Task.Delay(100);
                 chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
@@ -236,7 +268,13 @@ namespace Tamphan_BBP_EVN_WF
                     if (!FailedInvoices.Any(x => x.maKH == maKH))
                         FailedInvoices.Add((maKH, mucDich));
                     //
-                    continue;
+                    if (retry < 3)
+                    {
+                        retry++;
+                        await Task.Delay(10000);
+                        goto Retry;
+                    }
+                    //continue;
                 }
                 await Task.Delay(1000); // buffer nhỏ cho chắc
                 //

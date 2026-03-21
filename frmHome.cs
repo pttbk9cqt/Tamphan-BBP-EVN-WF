@@ -114,148 +114,24 @@ namespace Tamphan_BBP_EVN_WF
         // ==============================
         private async void btnFrmHomeMultiDownload_Click(object sender, EventArgs e)
         {
-            if (dgvFrmHome.Rows.Count == 0)
+            try
             {
-                MessageBox.Show("Không có dữ liệu để download");
-                return;
-            }
-
-            HashSet<string> downloadedMaKH = new HashSet<string>();
-            List<string> failedMaKH = new List<string>();
-            List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
-
-            // 1. Lấy dữ liệu từ dgv
-            var rows = dgvFrmHome.Rows
-                .Cast<DataGridViewRow>()
-                .Where(r => !r.IsNewRow)
-                .Select(r => new
+                if (_arrayMaKH.Count > 0)
                 {
-                    MaKH = NormalizeMaKH(r.Cells[5].Value?.ToString()),
-                    GopMa = r.Cells[4].Value?.ToString()
-                })
-                .Where(x => !string.IsNullOrWhiteSpace(x.MaKH))
-                .ToList();
-
-            // =============================
-            // 2. XỬ LÝ KHÔNG GỘP
-            // =============================
-            var khongGop = rows.Where(x => string.IsNullOrWhiteSpace(x.GopMa));
-
-            foreach (var item in khongGop)
-            {
-                if (downloadedMaKH.Contains(item.MaKH))
-                    continue;
-
-                using (var frm = new frmDownload(item.MaKH, accountService, true, new List<string> { item.MaKH }))
-                {
-                    frm.ShowDialog();
-                    allFailed.AddRange(frm.FailedInvoices);
-
-                    if (!frm.IsCompleted)
-                        failedMaKH.Add(item.MaKH);
-                }
-
-                downloadedMaKH.Add(item.MaKH);
-                await Task.Delay(1000);
-            }
-
-            // =============================
-            // 3. XỬ LÝ CÓ GỘP
-            // =============================
-            var groups = rows
-                .Where(x => !string.IsNullOrWhiteSpace(x.GopMa))
-                .GroupBy(x => x.GopMa);
-
-            foreach (var group in groups)
-            {
-                string masterMaKH = group.Key;
-
-                if (downloadedMaKH.Contains(masterMaKH))
-                    continue;
-
-                var listMaKH = group
-                    .Select(x => x.MaKH)
-                    .Distinct()
-                    .ToList();
-
-                using (var frm = new frmDownload(masterMaKH, accountService, false, listMaKH))
-                {
-                    frm.ShowDialog();
-                    // GOM LỖI
-                    allFailed.AddRange(frm.FailedInvoices);
-
-                    if (!frm.IsCompleted)
-                        failedMaKH.Add(masterMaKH);
-                }
-
-                // đánh dấu toàn bộ đã xử lý
-                foreach (var item in listMaKH)
-                {
-                    downloadedMaKH.Add(item);
-                }
-
-                //Gọi export cuối cùng sau khi xử lý xong 1 nhóm, để tránh trường hợp có nhóm quá lớn mà bị lỗi nhiều quá thì mình còn biết được ngay, chứ đợi đến cuối cùng mới export thì nếu có nhiều lỗi quá thì cũng không biết được mã nào lỗi mà tra cứu thủ công
-                string file = ExportFailedToCsv(allFailed);
-
-                if (!string.IsNullOrEmpty(file))
-                {
-                    MessageBox.Show($"Có {allFailed.Count} mã lỗi.\nFile: {file}");
-                }
-
-                await Task.Delay(1000);
-            }
-            // =============================
-            // 4. RETRY FAIL
-            // =============================
-            if (failedMaKH.Count > 0)
-            {
-                DialogResult rs = MessageBox.Show(
-                    $"Có {failedMaKH.Count} mã lỗi. Retry lại?",
-                    "Retry",
-                    MessageBoxButtons.YesNo
-                );
-
-                if (rs == DialogResult.Yes)
-                {
-                    foreach (var maKH in failedMaKH)
+                    using (var frm = new frmDownload(_arrayMaKH, accountService))
                     {
-                        using (var frm = new frmDownload(maKH, accountService, false, new List<string> { maKH }))
-                        {
-                            frm.ShowDialog();
-                        }
-
-                        await Task.Delay(1000);
+                        frm.ShowDialog();
                     }
                 }
-            }
-
-            MessageBox.Show("Done");
-        }
-        // =============================
-        // Xuất excel những mã lỗi (nếu có) sau khi download hàng loạt, để mình còn biết mà tra cứu thủ công, tránh trường hợp bỏ sót mã nào
-        // =============================
-        private string ExportFailedToCsv(List<(string maKH, string mucDich)> list)
-        {
-            if (list.Count == 0)
-                return null;
-
-            string path = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads",
-                $"Failed_{DateTime.Now:yyyyMMdd_HHmmss}.csv"
-            );
-
-            using (var writer = new StreamWriter(path, false, System.Text.Encoding.UTF8))
-            {
-                writer.WriteLine("MaKH,MucDichSuDung");
-
-                foreach (var item in list.Distinct())
+                else
                 {
-                    writer.WriteLine($"{item.maKH},{item.mucDich}");
+                    MessageBox.Show("import file excel truoc de co ma khach hang");
                 }
             }
-
-            return path;
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace);
+            }
         }
         // Drag file Excel: kéo thả file excel vào panel và hiển thị lên datagridview, lưu ý phải chỉnh dragdrop của panel là true, và các event dragenter và dragdrop phải được gán đúng (mở vào Design, chọn panel, vào event và gán đúng event dragenter và dragdrop)
         private void pnlDropExcel_DragEnter(object sender, DragEventArgs e)
@@ -376,28 +252,6 @@ namespace Tamphan_BBP_EVN_WF
             Application.Exit();
         }
 
-        private void btnDownloadAll_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (_arrayMaKH.Count > 0)
-                {
-                    using (var frm = new frmDownload(_arrayMaKH, accountService))
-                    {
-                        frm.ShowDialog();
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("import file excel truoc de co ma khach hang");
-                }
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace);
-            }
-        }
     }
 
 }
