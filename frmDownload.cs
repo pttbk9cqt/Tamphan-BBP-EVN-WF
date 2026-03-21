@@ -72,7 +72,6 @@ namespace Tamphan_BBP_EVN_WF
 
             _loginProcessStarted = true;
 
-            //Tuan code
             List<AccountEVN> arrAccount = _accountService.GetAllAccounts();
             Dictionary<string, List<string>> mappGop = _accountService.GetMapAccount();
             List<string> arrAllMaKH_khong_gop = new List<string>();
@@ -118,7 +117,7 @@ namespace Tamphan_BBP_EVN_WF
                 for (int i = 0; i < arrMaMK_khong_gop.Count; i++)
                 {
                     AccountEVN acc = _accountService.GetAccount(arrMaMK_khong_gop[i]);
-
+                    //
                     await AutoLoginAndDownload(acc);
                     //
                     await Task.Delay(1000);
@@ -132,7 +131,7 @@ namespace Tamphan_BBP_EVN_WF
                 foreach (var item in mappingMaGop_maKH_need_download)
                 {
                     AccountEVN acc = _accountService.GetAccount(item.Key);
-
+                    //
                     await AutoLoginAndDownload(acc, item.Value);
                     //
                     await Task.Delay(1000);
@@ -141,12 +140,7 @@ namespace Tamphan_BBP_EVN_WF
                     await Task.Delay(1500);
                 }
                 await Task.Delay(500);
-                //
-                //xong roi thi close form
-                this.Invoke(new Action(() =>
-                {
-                    this.Close();
-                }));
+                this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
             }
             else
             {
@@ -156,26 +150,15 @@ namespace Tamphan_BBP_EVN_WF
                 if (_downloadSingleOnly)
                 {
                     await AutoLoginAndDownload(accLogin, new List<string>() { accLogin.MaKH });
-                    //
                     await Task.Delay(500);
-                    //
-                    //xong roi thi close form
-                    this.Invoke(new Action(() =>
-                    {
-                        this.Close();
-                    }));
+                    this.Invoke(new Action(() =>{this.Close();}));//xong roi thi close form
                 }
                 else
                 {
                     await AutoLoginAndDownload(accLogin);
                     //
                     await Task.Delay(500);
-                    //
-                    //xong roi thi close form
-                    this.Invoke(new Action(() =>
-                    {
-                        this.Close();
-                    }));
+                    this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
                 }
             }
         }
@@ -219,7 +202,6 @@ namespace Tamphan_BBP_EVN_WF
             {
                 int retry = 0;
             Retry:
-                //XemHoaDonTienDien('1630063093','1','2','2026');
                 string onclick = item.ToString();
                 string idHoaDon = onclick.Split('\'')[1]; // Lấy idHoaDon từ chuỗi onclick, ở vị trí thứ 2 (index 1) sau khi split bằng dấu nháy đơn
                 // tìm dòng tương ứng
@@ -287,7 +269,6 @@ namespace Tamphan_BBP_EVN_WF
                 else
                 {
                     //khong download duoc thi thu lai.
-                    //cai nay lam sau.
                     if (retry < 3)
                     {
                         retry++;
@@ -295,26 +276,14 @@ namespace Tamphan_BBP_EVN_WF
                         goto Retry;
                     }
                 }
-
-                //this.Invoke(new Action(() =>
-                //{
-                //    this.Close();
-                //}));
             }
-
-
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async Task RetryLoginIfFailed(AccountEVN acc)
         {
             for (int i = 0; i < 3; i++)
             {
-                if (!chromiumdownload.Address.Contains("DangNhap"))
-                {
-                    // đã đăng nhập thành công
-                    return;
-                }
-
+                if (!chromiumdownload.Address.Contains("DangNhap")) { return;} // đã đăng nhập thành công
                 await Task.Delay(1000);
                 chromiumdownload.Reload();
                 await Task.Delay(1500);
@@ -360,17 +329,12 @@ namespace Tamphan_BBP_EVN_WF
             await Task.Delay(400);
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
-        /////Hàm set DownloadHandler động với mỗi maKH mới ở maKH = invoice.maKH;
+        /////Hàm set DownloadHandler động với mỗi maKH mới ở maKH = invoice.maKH; để truyền mã khách hàng của từng row cho file download
         private void SetDownloadHandler(string maKH, out string fileName)
         {
             fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", BuildPdfName(maKH));
-            var downloadHandler = new BlobPdfDownloadHandler(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
-                () => BuildPdfName(maKH) // dùng maKH mới
-            );
-
+            var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), () => BuildPdfName(maKH)); // dùng maKH mới
             downloadHandler.PdfDownloaded += OnPdfDownloaded;
-
             chromiumdownload.DownloadHandler = downloadHandler;
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,7 +342,6 @@ namespace Tamphan_BBP_EVN_WF
         {
             AccountEVN acc = _accountService.GetAccount(maKH);
             string mucDich = acc?.MucDichSuDung ?? "";
-
             if (DateTime.Today.Day <= 10)
             {
                 return "Thông báo điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
@@ -396,9 +359,7 @@ namespace Tamphan_BBP_EVN_WF
                 Invoke(new Action(() => OnPdfDownloaded(path)));
                 return;
             }
-
             Console.WriteLine("PDF saved: " + path);
-
             // báo cho luồng chính biết là đã download xong
             _downloadCompleted?.TrySetResult(true);
         }
@@ -407,13 +368,11 @@ namespace Tamphan_BBP_EVN_WF
         private async void btnExporttable_Click(object sender, EventArgs e)
         {
             var list = await _invoiceService.GetInvoicesAsync();
-
             if (list.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu hóa đơn");
                 return;
             }
-
             string path = _invoiceService.ExportInvoiceToExcel(list, _maKH);
             MessageBox.Show($"Xuất Excel thành công:\n{path}");
         }

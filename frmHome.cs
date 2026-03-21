@@ -193,9 +193,7 @@ namespace Tamphan_BBP_EVN_WF
                     dgvFrmHome.DataSource = table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
                     dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                     //
-                    List<string> valuesKH = table.AsEnumerable()
-                                          .Select(row => row["Mã Khách hàng"].ToString())
-                                          .ToList();
+                    List<string> valuesKH = table.AsEnumerable().Select(row => row["Mã Khách hàng"].ToString()).ToList();
                     _arrayMaKH = valuesKH;
                 }
             }
