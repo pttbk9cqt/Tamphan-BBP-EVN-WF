@@ -19,18 +19,21 @@ namespace Tamphan_BBP_EVN_WF
         private List<string> _arrayMaKH = new List<string>();
         public string maKH;
         List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
+
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmHome()
         {
             InitializeComponent();
             this.FormClosed += Home_FormClosed;
         }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void Home_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
             accountService.LoadAccounts();
         }
+
         // ==============================
         // Lấy Account từ textbox
         // ==============================
@@ -53,6 +56,7 @@ namespace Tamphan_BBP_EVN_WF
 
             return acc;
         }
+
         // ==============================
         // Chuẩn hóa Mã KH
         // ==============================
@@ -67,6 +71,7 @@ namespace Tamphan_BBP_EVN_WF
 
             return maKH;
         }
+
         // ==============================
         // Login EVN
         // ==============================
@@ -77,6 +82,7 @@ namespace Tamphan_BBP_EVN_WF
             frmEVNLogin frm = new frmEVNLogin(acc.MaKH, accountService);
             frm.Show();
         }
+
         // ==============================
         // Download thông báo (tất cả thông báo nhìn thấy - nếu gộp mã, hoặc 1 thông báo với cái không gộp)
         // ==============================
@@ -93,6 +99,7 @@ namespace Tamphan_BBP_EVN_WF
                 MessageBox.Show("Đã tải xong toàn bộ hóa đơn!");
             }
         }
+
         // ==============================
         // Download thông báo (chỉ 1 thông báo - kể cả gộp và không gộp)
         // ==============================
@@ -109,6 +116,7 @@ namespace Tamphan_BBP_EVN_WF
                 MessageBox.Show("Done!");
             }
         }
+
         // ==============================
         // Download những thông báo được thả trong DataGridView
         // ==============================
@@ -165,6 +173,7 @@ namespace Tamphan_BBP_EVN_WF
 
             LoadExcel(filePath);
         }
+
         // ==============================
         // Load Excel vào DataGridView
         // ==============================
@@ -198,6 +207,7 @@ namespace Tamphan_BBP_EVN_WF
                 }
             }
         }
+
         // ==============================
         // Bắn file excel source trong Data vào DataGridView để tra cho nhanh khỏi phải mở riêng 1 file excel để tra mã
         // ==============================
@@ -220,6 +230,7 @@ namespace Tamphan_BBP_EVN_WF
             dgvFrmHome.DataSource = table;
             dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
+
         // ==============================
         // Tạo acc mới
         // ==============================

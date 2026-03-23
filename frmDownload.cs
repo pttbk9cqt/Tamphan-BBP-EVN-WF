@@ -260,7 +260,6 @@ namespace Tamphan_BBP_EVN_WF
                 }
                 await Task.Delay(1000); // buffer nhỏ cho chắc
                 //
-
                 ///Sau khi download xong hết tất cả hóa đơn kể cả mã gộp, đóng form
                 if (File.Exists(fileName))
                 {
