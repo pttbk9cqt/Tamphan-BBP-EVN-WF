@@ -2,6 +2,7 @@
 using CefSharp.WinForms;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -151,7 +152,7 @@ namespace Tamphan_BBP_EVN_WF
                 {
                     await AutoLoginAndDownload(accLogin, new List<string>() { accLogin.MaKH });
                     await Task.Delay(500);
-                    this.Invoke(new Action(() =>{this.Close();}));//xong roi thi close form
+                    this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
                 }
                 else
                 {
@@ -221,61 +222,43 @@ namespace Tamphan_BBP_EVN_WF
 
                 chromiumdownload.ExecuteScriptAsync(onclick);//click vào nút xem thông báo/hóa đơn để mở file pdf
                 await Task.Delay(3000);
-
+                await chromiumdownload.WaitForInitialLoadAsync();
                 // set handler đúng theo từng hóa đơn
                 string fileName = "";
                 SetDownloadHandler(maKH, out fileName);
 
                 // chuẩn bị chờ download
                 _downloadCompleted = new TaskCompletionSource<bool>();
-
                 await Task.Delay(3000); // đợi nút download render
+                //lay vi tri nut download
+                Point pointDownload = GetPoinDownloadButton();
                 // click vào nút download
-                int X = 1350;//Convert.ToInt32(weblogin.Width * 0.711); tính ngược lại ra 1899.7; thì ở setup là 1900
-                int Y = 140;//Convert.ToInt32(weblogin.Height * 0.139);tính ngược lại ra 1007.2; thì ở setup là 1000
-                //int X = 1365;//ứng với setup 1920
-                //int Y = 165;//ứng với setup 1080
-                //int width = chromiumdownload.Width;
-                //int height = chromiumdownload.Height;
-                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
+                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
                 await Task.Delay(100);
-                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(X, Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
+                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
                 // chờ download xong
                 var completed = await Task.WhenAny(_downloadCompleted.Task, Task.Delay(10000));
-
+                //check download co thanh cong chua
                 if (completed != _downloadCompleted.Task)
                 {
-                    Console.WriteLine("Timeout download → skip");
-
-                    if (!FailedInvoices.Any(x => x.maKH == maKH))
-                        FailedInvoices.Add((maKH, mucDich));
-                    //
                     if (retry < 3)
                     {
                         retry++;
                         await Task.Delay(10000);
                         goto Retry;
                     }
-                    //continue;
+                    else if (!FailedInvoices.Any(x => x.maKH == maKH))
+                    {
+                        FailedInvoices.Add((maKH, mucDich));
+                        continue;
+                    }
                 }
-                await Task.Delay(1000); // buffer nhỏ cho chắc
-                //
-
-                ///Sau khi download xong hết tất cả hóa đơn kể cả mã gộp, đóng form
-                if (File.Exists(fileName))
+                else if (!_arrayInvoiceID_Downloaded.Contains(idHoaDon))
                 {
                     _arrayInvoiceID_Downloaded.Add(idHoaDon);
                 }
-                else
-                {
-                    //khong download duoc thi thu lai.
-                    if (retry < 3)
-                    {
-                        retry++;
-                        await Task.Delay(10000);
-                        goto Retry;
-                    }
-                }
+                await Task.Delay(1000); // buffer nhỏ cho chắc
+
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +266,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             for (int i = 0; i < 3; i++)
             {
-                if (!chromiumdownload.Address.Contains("DangNhap")) { return;} // đã đăng nhập thành công
+                if (!chromiumdownload.Address.Contains("DangNhap")) { return; } // đã đăng nhập thành công
                 await Task.Delay(1000);
                 chromiumdownload.Reload();
                 await Task.Delay(1500);
@@ -375,6 +358,47 @@ namespace Tamphan_BBP_EVN_WF
             }
             string path = _invoiceService.ExportInvoiceToExcel(list, _maKH);
             MessageBox.Show($"Xuất Excel thành công:\n{path}");
+        }
+
+        /// Hàm lấy vị trí nút download
+        private Point GetPoinDownloadButton()
+        {
+            try
+            {
+                var script = @"
+                                (function() {
+                                    var el = document.getElementById('pdfFrame');
+                                    if (!el) return null;
+
+                                    var rect = el.getBoundingClientRect();
+                                    return {
+                                        x: rect.right,
+                                        y: rect.top
+                                    };
+                                })();
+                                ";
+                var response = chromiumdownload.EvaluateScriptAsync(script).Result;
+                if (response.Success && response.Result != null)
+                {
+                    dynamic result = response.Result;
+
+                    double x = result.x;
+                    double y = result.y;
+
+                    return new Point(Convert.ToInt32(x) - 96, Convert.ToInt32(y) + 28);
+                }
+                else
+                {
+                    //MessageBox.Show("khong tim thay vi tri nut download, set mac dinh");
+                    return new Point(1350, 165);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                //MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace + "\r\nSet mac dinh");
+                return new Point(1350, 165);
+            }
         }
     }
 }

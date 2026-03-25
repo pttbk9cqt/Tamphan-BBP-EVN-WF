@@ -125,21 +125,36 @@ namespace Tamphan_BBP_EVN_WF.Services
             var rect = await GetCaptchaRectAsync();
             if (rect == null)
                 return null;
-
-            using (Bitmap fullPage = await CaptureBrowserAsync())
+            int again = 0;
+        again:
+            try
             {
-                using (Bitmap captcha = CropCaptcha(fullPage, rect))
+                using (Bitmap fullPage = await CaptureBrowserAsync())
                 {
-                    // debug nếu cần
-                    //captcha.Save("captcha_debug.png");
+                    using (Bitmap captcha = CropCaptcha(fullPage, rect))
+                    {
+                        // debug nếu cần
+                        //captcha.Save("captcha_debug.png");
 
-                    string text = _ocrService.ReadCaptcha(captcha);
+                        string text = _ocrService.ReadCaptcha(captcha);
 
-                    if (string.IsNullOrWhiteSpace(text))
-                        return null;
+                        if (string.IsNullOrWhiteSpace(text))
+                            return null;
 
-                    return text;
+                        return text;
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                //retry lai de tranh loi truong hop dang capture thi di chuyen/thay doi kich thuoc man hinh task.
+                if (again < 50)
+                {
+                    again++;
+                    await Task.Delay(1000);
+                    goto again;
+                }
+                return null;
             }
         }
 
