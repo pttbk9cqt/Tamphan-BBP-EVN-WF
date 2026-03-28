@@ -389,15 +389,12 @@ namespace Tamphan_BBP_EVN_WF
                 }
                 else
                 {
-                    //MessageBox.Show("khong tim thay vi tri nut download, set mac dinh");
-                    return new Point(1350, 165);
+                    return new Point(1350, 165); //MessageBox.Show("khong tim thay vi tri nut download, set mac dinh");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
-                //MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace + "\r\nSet mac dinh");
-                return new Point(1350, 165);
+                return new Point(1350, 165); //MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace + "\r\nSet mac dinh");
             }
         }
     }

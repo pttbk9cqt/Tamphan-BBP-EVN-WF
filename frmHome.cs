@@ -20,14 +20,12 @@ namespace Tamphan_BBP_EVN_WF
         private List<string> _arrayMaKH = new List<string>();
         public string maKH;
         List<(string maKH, string mucDich)> allFailed = new List<(string, string)>();
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmHome()
         {
             InitializeComponent();
             this.FormClosed += Home_FormClosed;
         }
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void Home_Load(object sender, EventArgs e)
         {
@@ -261,7 +259,5 @@ namespace Tamphan_BBP_EVN_WF
             // thoát toàn bộ ứng dụng
             Application.Exit();
         }
-
     }
-
 }
