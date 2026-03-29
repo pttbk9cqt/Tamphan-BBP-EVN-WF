@@ -1,5 +1,6 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
+using DocumentFormat.OpenXml.Bibliography;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +13,7 @@ using Tamphan_BBP_EVN_WF.Services;
 
 namespace Tamphan_BBP_EVN_WF
 {
-    public partial class frmDownload : Form
+    public partial class frmDownloadFullYear : Form
     {
         string _mode = "";
         private string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
@@ -24,7 +25,6 @@ namespace Tamphan_BBP_EVN_WF
         private InvoiceService _invoiceService;
         private List<string> _arrayInvoiceID_Downloaded = new List<string>();
         private Dictionary<string, List<string>> _arrDownloadFailed = new Dictionary<string, List<string>>();
-        string kyHoaDon = DateTime.Now.AddMonths(-1).ToString("MM-yyyy");
         private bool _loginProcessStarted = false;
         private TaskCompletionSource<bool> _downloadCompleted;
         public bool IsCompleted { get; private set; } = false;
@@ -32,7 +32,7 @@ namespace Tamphan_BBP_EVN_WF
         private HashSet<string> _allowedMaKH;
         public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
+        public frmDownloadFullYear(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
         {
             InitializeComponent();
             _maKH = maKH;
@@ -42,11 +42,11 @@ namespace Tamphan_BBP_EVN_WF
             _allowedMaKH = allowedMaKH != null ? new HashSet<string>(allowedMaKH) : null;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownload);
+            captchaHelper = new CaptchaHelper(chromiumdownloadfullyear, "imgCaptcha");
+            _invoiceService = new InvoiceService(chromiumdownloadfullyear);
             _mode = "single";
         }
-        public frmDownload(List<string> arrayMaKH, AccountService accountService)
+        public frmDownloadFullYear(List<string> arrayMaKH, AccountService accountService)
         {
             InitializeComponent();
             _accountService = accountService;
@@ -54,17 +54,17 @@ namespace Tamphan_BBP_EVN_WF
             _arrMaKH = arrayMaKH;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
-            captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownload);
+            captchaHelper = new CaptchaHelper(chromiumdownloadfullyear, "imgCaptcha");
+            _invoiceService = new InvoiceService(chromiumdownloadfullyear);
             _mode = "all";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         private void InitBrowser()
         {
-            chromiumdownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
+            chromiumdownloadfullyear.FrameLoadEnd += Browser_FrameLoadEndAsync;
             MousePositionHelper.Start(this);
-            chromiumdownload.Load(url);
+            chromiumdownloadfullyear.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private async void Browser_FrameLoadEndAsync(object sender, FrameLoadEndEventArgs e)
@@ -124,7 +124,7 @@ namespace Tamphan_BBP_EVN_WF
                     await Task.Delay(1000);
                     Cef.GetGlobalCookieManager().DeleteCookies("", "");
                     await Task.Delay(1000);
-                    chromiumdownload.Load(url);
+                    chromiumdownloadfullyear.Load(url);
                     await Task.Delay(1500);
                 }
                 //
@@ -137,7 +137,7 @@ namespace Tamphan_BBP_EVN_WF
                     //
                     await Task.Delay(1000);
                     Cef.GetGlobalCookieManager().DeleteCookies("", "");
-                    chromiumdownload.Load(url);
+                    chromiumdownloadfullyear.Load(url);
                     await Task.Delay(1500);
                 }
                 await Task.Delay(500);
@@ -166,99 +166,122 @@ namespace Tamphan_BBP_EVN_WF
         //////////////////////////////////////////////////////////////////////////////////////////////
         private async Task AutoLoginAndDownload(AccountEVN acc, List<string> arrMaKH_of_gop = null)
         {
-            // điền user pass
             await FillLoginForm(acc);
             await Task.Delay(400);
-            // captcha
+
             await captchaHelper.AutoFillCaptchaAsync();
             await Task.Delay(800);
-            // click login
-            chromiumdownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+
+            chromiumdownloadfullyear.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
             await Task.Delay(2000);
+
             await RetryLoginIfFailed(acc);
-            //tới đây là đã đăng nhập thành công rồi
-            var response = await chromiumdownload.EvaluateScriptAsync(@"
-                                                                         Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
-                                                                        .map(b => b.getAttribute('onclick'))
-                                                                        .filter(x=>x)
-                                                                        ");
-            //lấy danh sách onclick của tất cả nút xem thông báo/hóa đơn, sau đó sẽ click từng cái một để mở file pdf tương ứng rồi mới click tiếp nút download trong pdf đó
-            var list_invoiceInWeb = await _invoiceService.GetInvoicesAsync();
-            List<object> arrAllOnClick = (List<object>)response.Result;
-            List<object> arrOnClick = new List<object>();
-            if (arrMaKH_of_gop != null && arrMaKH_of_gop.Count > 0)
-            {
-                var list_invoiceNeedDownload = list_invoiceInWeb.Where(ite => arrMaKH_of_gop.Contains(ite.maKH));
-                foreach (var item in list_invoiceNeedDownload)
-                {
-                    arrOnClick.AddRange(arrAllOnClick.Where(ite => ite.ToString().Contains(item.idHoaDon)));
-                }
-            }
-            else
-            {
-                arrOnClick = arrAllOnClick;
-            }
-            //
-            foreach (var item in arrOnClick)
-            {
-                int retry = 0;
-            Retry:
-                string onclick = item.ToString();
-                string idHoaDon = onclick.Split('\'')[1]; // Lấy idHoaDon từ chuỗi onclick, ở vị trí thứ 2 (index 1) sau khi split bằng dấu nháy đơn
-                // tìm dòng tương ứng
-                //idhoadon da tai roi thi continue.
-                if (_arrayInvoiceID_Downloaded.Contains(idHoaDon))
-                    continue;
-                //
-                var invoice = list_invoiceInWeb.FirstOrDefault(x => x.idHoaDon == idHoaDon);
-                //
-                if (invoice == null)
-                    continue;
-                //
-                string maKH = invoice.maKH;
-                //
-                AccountEVN accInfo = _accountService.GetAccount(maKH);
-                string mucDich = accInfo?.MucDichSuDung ?? "";
 
-                chromiumdownload.ExecuteScriptAsync(onclick);//click vào nút xem thông báo/hóa đơn để mở file pdf
-                await Task.Delay(3000);
-                await chromiumdownload.WaitForInitialLoadAsync();
-                // set handler đúng theo từng hóa đơn
-                string fileName = "";
-                SetDownloadHandler(maKH, out fileName);
+            // ===== LOOP 12 THÁNG =====
+            for (int month = 1; month <= 12; month++)
+            {
+                Console.WriteLine($"Đang xử lý tháng {month}/2025");
 
-                // chuẩn bị chờ download
-                _downloadCompleted = new TaskCompletionSource<bool>();
-                await Task.Delay(3000); // đợi nút download render
-                //lay vi tri nut download
-                Point pointDownload = GetPoinDownloadButton();
-                // click vào nút download
-                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
-                await Task.Delay(100);
-                chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
-                // chờ download xong
-                var completed = await Task.WhenAny(_downloadCompleted.Task, Task.Delay(10000));
-                //check download co thanh cong chua
-                if (completed != _downloadCompleted.Task)
+                await SelectMonthYear(month, 2025);
+
+                var response = await chromiumdownloadfullyear.EvaluateScriptAsync(@"
+            Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
+            .map(b => b.getAttribute('onclick'))
+            .filter(x=>x)
+        ");
+
+                var list_invoiceInWeb = await _invoiceService.GetInvoicesAsync();
+
+                List<object> arrAllOnClick = (List<object>)response.Result;
+                List<object> arrOnClick = new List<object>();
+
+                if (arrMaKH_of_gop != null && arrMaKH_of_gop.Count > 0)
                 {
-                    if (retry < 3)
+                    var list_invoiceNeedDownload = list_invoiceInWeb
+                        .Where(ite => arrMaKH_of_gop.Contains(ite.maKH));
+
+                    foreach (var item in list_invoiceNeedDownload)
                     {
-                        retry++;
-                        await Task.Delay(10000);
-                        goto Retry;
+                        arrOnClick.AddRange(arrAllOnClick
+                            .Where(ite => ite.ToString().Contains(item.idHoaDon)));
                     }
-                    else if (!FailedInvoices.Any(x => x.maKH == maKH))
-                    {
-                        FailedInvoices.Add((maKH, mucDich));
+                }
+                else
+                {
+                    arrOnClick = arrAllOnClick;
+                }
+
+                if (arrOnClick.Count == 0)
+                {
+                    Console.WriteLine($"Tháng {month} không có hóa đơn");
+                    continue;
+                }
+
+                foreach (var item in arrOnClick)
+                {
+                    int retry = 0;
+
+                Retry:
+                    string onclick = item.ToString();
+                    string idHoaDon = onclick.Split('\'')[1];
+
+                    if (_arrayInvoiceID_Downloaded.Contains(idHoaDon))
                         continue;
-                    }
-                }
-                else if (!_arrayInvoiceID_Downloaded.Contains(idHoaDon))
-                {
-                    _arrayInvoiceID_Downloaded.Add(idHoaDon);
-                }
-                await Task.Delay(1000); // buffer nhỏ cho chắc
 
+                    var invoice = list_invoiceInWeb.FirstOrDefault(x => x.idHoaDon == idHoaDon);
+                    if (invoice == null) continue;
+
+                    string maKH = invoice.maKH;
+                    AccountEVN accInfo = _accountService.GetAccount(maKH);
+                    string mucDich = accInfo?.MucDichSuDung ?? "";
+
+                    chromiumdownloadfullyear.ExecuteScriptAsync(onclick);
+                    await Task.Delay(3000);
+                    await chromiumdownloadfullyear.WaitForInitialLoadAsync();
+
+                    // truyền tháng vào file name
+                    string fileName = "";
+                    SetDownloadHandler(maKH, month, 2025, out fileName); ;
+
+                    _downloadCompleted = new TaskCompletionSource<bool>();
+
+                    await Task.Delay(3000);
+
+                    Point pointDownload = GetPoinDownloadButton();
+
+                    chromiumdownloadfullyear.GetBrowser().GetHost()
+                        .SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
+
+                    await Task.Delay(100);
+
+                    chromiumdownloadfullyear.GetBrowser().GetHost()
+                        .SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
+
+                    var completed = await Task.WhenAny(_downloadCompleted.Task, Task.Delay(10000));
+
+                    if (completed != _downloadCompleted.Task)
+                    {
+                        if (retry < 3)
+                        {
+                            retry++;
+                            await Task.Delay(5000);
+                            goto Retry;
+                        }
+                        else if (!FailedInvoices.Any(x => x.maKH == maKH))
+                        {
+                            FailedInvoices.Add((maKH, mucDich));
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        _arrayInvoiceID_Downloaded.Add(idHoaDon);
+                    }
+
+                    await Task.Delay(1000);
+                }
+
+                await Task.Delay(1000);
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,19 +289,19 @@ namespace Tamphan_BBP_EVN_WF
         {
             for (int i = 0; i < 3; i++)
             {
-                if (!chromiumdownload.Address.Contains("DangNhap")) { return; } // đã đăng nhập thành công
+                if (!chromiumdownloadfullyear.Address.Contains("DangNhap")) { return; } // đã đăng nhập thành công
                 await Task.Delay(1000);
-                chromiumdownload.Reload();
+                chromiumdownloadfullyear.Reload();
                 await Task.Delay(1500);
                 await FillLoginForm(acc);
                 await Task.Delay(1000);
                 await captchaHelper.AutoFillCaptchaAsync();
                 await Task.Delay(600);
-                chromiumdownload.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
+                chromiumdownloadfullyear.ExecuteScriptAsync("document.getElementById('btnDangNhap').click();");
                 await Task.Delay(2000);
             }
             // ===== Nếu chạy hết 3 lần vẫn ở trang đăng nhập =====
-            if (chromiumdownload.Address.Contains("DangNhap"))
+            if (chromiumdownloadfullyear.Address.Contains("DangNhap"))
             {
                 MessageBox.Show($"Đăng nhập thất bại sau 3 lần.\nBỏ qua mã khách hàng: {acc.MaKH}", "EVN Tool");
                 this.Close(); // đóng form
@@ -307,31 +330,92 @@ namespace Tamphan_BBP_EVN_WF
                                 }})();
                                 ";
 
-            chromiumdownload.ExecuteScriptAsync(script);
+            chromiumdownloadfullyear.ExecuteScriptAsync(script);
             await Task.Delay(400);
+        }
+        ////////////phần thêm để chọn tháng//////////////////////////
+        private async Task SelectMonthYear(int month, int year)
+        {
+            await chromiumdownloadfullyear.EvaluateScriptAsync($@"
+        (function() {{
+            var monthEl = document.getElementById('month');
+            var yearEl = document.getElementById('year');
+
+            if (monthEl && yearEl) {{
+                monthEl.value = '{month}';
+                yearEl.value = '{year}';
+
+                monthEl.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                yearEl.dispatchEvent(new Event('change', {{ bubbles: true }}));
+            }}
+        }})();
+    ");
+
+            // delay để JS web xử lý
+            await Task.Delay(2000);
+
+            // gọi lại lần nữa cho chắc
+            await chromiumdownloadfullyear.EvaluateScriptAsync(@"
+        if (typeof TraCuuHoaDonTienDien === 'function') {
+            TraCuuHoaDonTienDien();
+        }
+    ");
+
+            await WaitForInvoiceLoad();
+            await Task.Delay(1500);
+        }
+
+        private async Task WaitForInvoiceLoad()
+        {
+            int lastCount = -1;
+
+            for (int i = 0; i < 15; i++)
+            {
+                var check = await chromiumdownloadfullyear.EvaluateScriptAsync(@"
+            document.querySelectorAll('a.invoice-btn.view-btn.cursor').length
+        ");
+
+                if (check.Success)
+                {
+                    int current = (int)check.Result;
+
+                    // ✅ đợi đến khi dữ liệu ổn định (load xong)
+                    if (current == lastCount)
+                        return;
+
+                    lastCount = current;
+                }
+
+                await Task.Delay(1000);
+            }
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
         /////Hàm set DownloadHandler động với mỗi maKH mới ở maKH = invoice.maKH; để truyền mã khách hàng của từng row cho file download
-        private void SetDownloadHandler(string maKH, out string fileName)
+        private void SetDownloadHandler(string maKH, int month, int year, out string fileName)
         {
-            fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", BuildPdfName(maKH));
-            var downloadHandler = new BlobPdfDownloadHandler(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), () => BuildPdfName(maKH)); // dùng maKH mới
+            fileName = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Downloads",
+                BuildPdfName(maKH, month, year)
+            );
+
+            var downloadHandler = new BlobPdfDownloadHandler(
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
+                () => BuildPdfName(maKH, month, year)
+            );
+
             downloadHandler.PdfDownloaded += OnPdfDownloaded;
-            chromiumdownload.DownloadHandler = downloadHandler;
+            chromiumdownloadfullyear.DownloadHandler = downloadHandler;
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
-        string BuildPdfName(string maKH)
+        string BuildPdfName(string maKH, int month, int year)
         {
             AccountEVN acc = _accountService.GetAccount(maKH);
             string mucDich = acc?.MucDichSuDung ?? "";
-            if (DateTime.Today.Day <= 10)
-            {
-                return "Thông báo điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
-            }
-            else
-            {
-                return "Hóa đơn điện kỳ " + kyHoaDon + "_" + maKH + "_" + acc.MucDichSuDung + ".pdf";
-            }
+
+            string ky = $"{month:D2}-{year}";
+
+            return $"HoaDon_{ky}_{maKH}_{mucDich}.pdf";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         private void OnPdfDownloaded(string path)
@@ -376,7 +460,7 @@ namespace Tamphan_BBP_EVN_WF
                                     };
                                 })();
                                 ";
-                var response = chromiumdownload.EvaluateScriptAsync(script).Result;
+                var response = chromiumdownloadfullyear.EvaluateScriptAsync(script).Result;
                 if (response.Success && response.Result != null)
                 {
                     dynamic result = response.Result;

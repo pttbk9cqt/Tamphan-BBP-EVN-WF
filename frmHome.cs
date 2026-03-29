@@ -259,5 +259,27 @@ namespace Tamphan_BBP_EVN_WF
             // thoát toàn bộ ứng dụng
             Application.Exit();
         }
+
+        private void btn_downloadfullyear_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_arrayMaKH.Count > 0)
+                {
+                    using (var frm = new frmDownloadFullYear(_arrayMaKH, accountService))
+                    {
+                        frm.ShowDialog();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("import file excel truoc de co ma khach hang");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace);
+            }
+        }
     }
 }

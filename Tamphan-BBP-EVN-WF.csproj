@@ -186,6 +186,12 @@
     <Compile Include="frmDownload.Designer.cs">
       <DependentUpon>frmDownload.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmDownloadFullYear.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDownloadFullYear.Designer.cs">
+      <DependentUpon>frmDownloadFullYear.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmEVNLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -226,6 +232,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmCreAcc.resx">
       <DependentUpon>frmCreAcc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDownloadFullYear.resx">
+      <DependentUpon>frmDownloadFullYear.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmEVNLogin.resx">
       <DependentUpon>frmEVNLogin.cs</DependentUpon>
