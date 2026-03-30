@@ -32,38 +32,21 @@ namespace Tamphan_BBP_EVN_WF
         private HashSet<string> _allowedMaKH;
         public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        public frmDownloadFullYear(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
-        {
-            InitializeComponent();
-            _maKH = maKH;
-            _accountService = accountService;
-            _downloadSingleOnly = downloadSingleOnly;
-            _account = _accountService.GetAccount(_maKH);
-            _allowedMaKH = allowedMaKH != null ? new HashSet<string>(allowedMaKH) : null;
-            this.WindowState = FormWindowState.Maximized;
-            InitBrowser();
-            captchaHelper = new CaptchaHelper(chromiumdownloadfullyear, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownloadfullyear);
-            _mode = "single";
-        }
         public frmDownloadFullYear(List<string> arrayMaKH, AccountService accountService)
         {
             InitializeComponent();
             _accountService = accountService;
-            _downloadSingleOnly = false;
             _arrMaKH = arrayMaKH;
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownloadfullyear, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownloadfullyear);
-            _mode = "all";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         ///
         private void InitBrowser()
         {
             chromiumdownloadfullyear.FrameLoadEnd += Browser_FrameLoadEndAsync;
-            MousePositionHelper.Start(this);
             chromiumdownloadfullyear.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,98 +56,26 @@ namespace Tamphan_BBP_EVN_WF
 
             _loginProcessStarted = true;
 
-            List<AccountEVN> arrAccount = _accountService.GetAllAccounts();
-            Dictionary<string, List<string>> mappGop = _accountService.GetMapAccount();
-            List<string> arrAllMaKH_khong_gop = new List<string>();
-            List<string> arrAllMaKH_gop = new List<string>();
+            List<AccountEVN> arrAccount = _accountService.GetAllAccounts(); //sau lệnh này được 1 list 329 phần tử với model account
+            Dictionary<string, List<string>> mappGop = _accountService.GetMapAccount();//sau lệnh này được danh sách 7 phần tử gộp bao gồm 6 mã gộp và 1 phần tử null
 
-            //
-            if (mappGop.ContainsKey("no"))
+            for (int i = 0; i < _arrMaKH.Count; i++)            //_arrMaKH là mã khách hàng từ các rows trong datagridview đưa vào
             {
-                arrAllMaKH_khong_gop = mappGop["no"];
+                AccountEVN acc = _accountService.GetAccount(_arrMaKH[i]);  //móc phần tử acc là từng rows dạng model account từ source ra
+                //
+                await AutoLoginAndDownload(acc);
+                //
+                await Task.Delay(1000);
+                Cef.GetGlobalCookieManager().DeleteCookies("", "");
+                await Task.Delay(1000);
+                chromiumdownloadfullyear.Load(url);
+                await Task.Delay(1500);
             }
-            //
-            arrAllMaKH_gop = mappGop.Keys.ToList();
-            arrAllMaKH_gop.Remove("no");
-            //
-            if (_mode == "all")
-            {
-                Dictionary<string, List<string>> mappingMaGop_maKH_need_download = new Dictionary<string, List<string>>();
-                //
-                List<string> arrMaMK_khong_gop = arrAllMaKH_khong_gop.Where(ite => _arrMaKH.Contains(ite)).ToList();
-                List<string> arrMaKH_of_gop = _arrMaKH.Where(ite => !arrMaMK_khong_gop.Contains(ite)).ToList();
-                foreach (string item in arrMaKH_of_gop)
-                {
-                    foreach (string d in arrAllMaKH_gop)
-                    {
-                        List<string> arrOfDic = mappGop[d];
-                        if (arrOfDic.Contains(item))
-                        {
-                            if (!mappingMaGop_maKH_need_download.ContainsKey(d))
-                            {
-                                mappingMaGop_maKH_need_download.Add(d, new List<string>() { item });
-                            }
-                            else
-                            {
-                                List<string> val = mappingMaGop_maKH_need_download[d];
-                                val.Add(item);
-                                mappingMaGop_maKH_need_download[d] = val;
-                            }
-                        }
-                    }
-                }
-                //
-                //xu ly khong gop truoc
-                for (int i = 0; i < arrMaMK_khong_gop.Count; i++)
-                {
-                    AccountEVN acc = _accountService.GetAccount(arrMaMK_khong_gop[i]);
-                    //
-                    await AutoLoginAndDownload(acc);
-                    //
-                    await Task.Delay(1000);
-                    Cef.GetGlobalCookieManager().DeleteCookies("", "");
-                    await Task.Delay(1000);
-                    chromiumdownloadfullyear.Load(url);
-                    await Task.Delay(1500);
-                }
-                //
-                //xu ly gop
-                foreach (var item in mappingMaGop_maKH_need_download)
-                {
-                    AccountEVN acc = _accountService.GetAccount(item.Key);
-                    //
-                    await AutoLoginAndDownload(acc, item.Value);
-                    //
-                    await Task.Delay(1000);
-                    Cef.GetGlobalCookieManager().DeleteCookies("", "");
-                    chromiumdownloadfullyear.Load(url);
-                    await Task.Delay(1500);
-                }
-                await Task.Delay(500);
-                this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
-            }
-            else
-            {
-                //xu ly rieng tung cai nhap vao
-                AccountEVN accLogin = _accountService.GetAccount(_maKH);
-                //
-                if (_downloadSingleOnly)
-                {
-                    await AutoLoginAndDownload(accLogin, new List<string>() { accLogin.MaKH });
-                    await Task.Delay(500);
-                    this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
-                }
-                else
-                {
-                    await AutoLoginAndDownload(accLogin);
-                    //
-                    await Task.Delay(500);
-                    this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
-                }
-            }
+            await Task.Delay(500);
+            this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
         }
         //////////////////////////////////////////////////////////////////////////////////////////////
-        private async Task AutoLoginAndDownload(AccountEVN acc, List<string> arrMaKH_of_gop = null)
+        private async Task AutoLoginAndDownload(AccountEVN acc, List<string> _arrMaKH = null)
         {
             await FillLoginForm(acc);
             await Task.Delay(400);
@@ -185,20 +96,20 @@ namespace Tamphan_BBP_EVN_WF
                 await SelectMonthYear(month, 2025);
 
                 var response = await chromiumdownloadfullyear.EvaluateScriptAsync(@"
-            Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
-            .map(b => b.getAttribute('onclick'))
-            .filter(x=>x)
-        ");
+                                                                                    Array.from(document.querySelectorAll('a.invoice-btn.view-btn.cursor'))
+                                                                                    .map(b => b.getAttribute('onclick'))
+                                                                                    .filter(x=>x)
+                                                                                ");
 
                 var list_invoiceInWeb = await _invoiceService.GetInvoicesAsync();
 
-                List<object> arrAllOnClick = (List<object>)response.Result;
-                List<object> arrOnClick = new List<object>();
+                List<object> arrAllOnClick = (List<object>)response.Result; //arrAllOnclick trả về XemHoaDonTienDien('1492538262','1','1','2025');
+                List<object> arrOnClick = new List<object>();//arrOnclick trả về XemHoaDonTienDien('1492538262','1','1','2025');
 
-                if (arrMaKH_of_gop != null && arrMaKH_of_gop.Count > 0)
+                if (_arrMaKH != null && _arrMaKH.Count > 0)
                 {
                     var list_invoiceNeedDownload = list_invoiceInWeb
-                        .Where(ite => arrMaKH_of_gop.Contains(ite.maKH));
+                        .Where(ite => _arrMaKH.Contains(ite.maKH));
 
                     foreach (var item in list_invoiceNeedDownload)
                     {
@@ -257,7 +168,7 @@ namespace Tamphan_BBP_EVN_WF
                     chromiumdownloadfullyear.GetBrowser().GetHost()
                         .SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, true, 1, CefEventFlags.None);
 
-                    var completed = await Task.WhenAny(_downloadCompleted.Task, Task.Delay(10000));
+                    var completed = await Task.WhenAny(_downloadCompleted.Task, Task.Delay(5000));
 
                     if (completed != _downloadCompleted.Task)
                     {
@@ -337,30 +248,23 @@ namespace Tamphan_BBP_EVN_WF
         private async Task SelectMonthYear(int month, int year)
         {
             await chromiumdownloadfullyear.EvaluateScriptAsync($@"
-        (function() {{
+        (function() 
+            {{
             var monthEl = document.getElementById('month');
             var yearEl = document.getElementById('year');
 
-            if (monthEl && yearEl) {{
+            if (monthEl && yearEl) 
+            {{
                 monthEl.value = '{month}';
                 yearEl.value = '{year}';
-
                 monthEl.dispatchEvent(new Event('change', {{ bubbles: true }}));
                 yearEl.dispatchEvent(new Event('change', {{ bubbles: true }}));
             }}
-        }})();
-    ");
+            }})();
+            ");
 
             // delay để JS web xử lý
             await Task.Delay(2000);
-
-            // gọi lại lần nữa cho chắc
-            await chromiumdownloadfullyear.EvaluateScriptAsync(@"
-        if (typeof TraCuuHoaDonTienDien === 'function') {
-            TraCuuHoaDonTienDien();
-        }
-    ");
-
             await WaitForInvoiceLoad();
             await Task.Delay(1500);
         }
@@ -371,18 +275,14 @@ namespace Tamphan_BBP_EVN_WF
 
             for (int i = 0; i < 15; i++)
             {
-                var check = await chromiumdownloadfullyear.EvaluateScriptAsync(@"
-            document.querySelectorAll('a.invoice-btn.view-btn.cursor').length
-        ");
+                var check = await chromiumdownloadfullyear.EvaluateScriptAsync(@" document.querySelectorAll('a.invoice-btn.view-btn.cursor').length ");
 
                 if (check.Success)
                 {
                     int current = (int)check.Result;
-
-                    // ✅ đợi đến khi dữ liệu ổn định (load xong)
+                    // đợi đến khi dữ liệu ổn định (load xong)
                     if (current == lastCount)
                         return;
-
                     lastCount = current;
                 }
 
@@ -393,16 +293,12 @@ namespace Tamphan_BBP_EVN_WF
         /////Hàm set DownloadHandler động với mỗi maKH mới ở maKH = invoice.maKH; để truyền mã khách hàng của từng row cho file download
         private void SetDownloadHandler(string maKH, int month, int year, out string fileName)
         {
-            fileName = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "Downloads",
-                BuildPdfName(maKH, month, year)
-            );
+            fileName = Path.Combine( Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", BuildPdfName(maKH, month, year));
 
             var downloadHandler = new BlobPdfDownloadHandler(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
-                () => BuildPdfName(maKH, month, year)
-            );
+                                                            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
+                                                            () => BuildPdfName(maKH, month, year)
+                                                            );
 
             downloadHandler.PdfDownloaded += OnPdfDownloaded;
             chromiumdownloadfullyear.DownloadHandler = downloadHandler;
@@ -412,9 +308,7 @@ namespace Tamphan_BBP_EVN_WF
         {
             AccountEVN acc = _accountService.GetAccount(maKH);
             string mucDich = acc?.MucDichSuDung ?? "";
-
             string ky = $"{month:D2}-{year}";
-
             return $"HoaDon_{ky}_{maKH}_{mucDich}.pdf";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,24 +319,10 @@ namespace Tamphan_BBP_EVN_WF
                 Invoke(new Action(() => OnPdfDownloaded(path)));
                 return;
             }
-            Console.WriteLine("PDF saved: " + path);
             // báo cho luồng chính biết là đã download xong
             _downloadCompleted?.TrySetResult(true);
         }
-
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private async void btnExporttable_Click(object sender, EventArgs e)
-        {
-            var list = await _invoiceService.GetInvoicesAsync();
-            if (list.Count == 0)
-            {
-                MessageBox.Show("Không có dữ liệu hóa đơn");
-                return;
-            }
-            string path = _invoiceService.ExportInvoiceToExcel(list, _maKH);
-            MessageBox.Show($"Xuất Excel thành công:\n{path}");
-        }
-
         /// Hàm lấy vị trí nút download
         private Point GetPoinDownloadButton()
         {
@@ -464,10 +344,8 @@ namespace Tamphan_BBP_EVN_WF
                 if (response.Success && response.Result != null)
                 {
                     dynamic result = response.Result;
-
                     double x = result.x;
                     double y = result.y;
-
                     return new Point(Convert.ToInt32(x) - 96, Convert.ToInt32(y) + 28);
                 }
                 else

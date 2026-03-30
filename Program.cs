@@ -42,9 +42,7 @@ namespace Tamphan_BBP_EVN_WF
             settings.CefCommandLineArgs.Add("disable-logging", "1");
 
             // user agent
-            settings.UserAgent =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
-            "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
+            settings.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
             // log cho subprocess - Cefsharp.BrowserSubprocess Chromium
             settings.LogSeverity = LogSeverity.Info;

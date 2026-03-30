@@ -63,7 +63,6 @@ namespace Tamphan_BBP_EVN_WF
         private void InitBrowser()
         {
             chromiumdownload.FrameLoadEnd += Browser_FrameLoadEndAsync;
-            MousePositionHelper.Start(this);
             chromiumdownload.Load(url);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////

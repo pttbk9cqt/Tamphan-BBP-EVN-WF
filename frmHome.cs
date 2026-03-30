@@ -264,17 +264,8 @@ namespace Tamphan_BBP_EVN_WF
         {
             try
             {
-                if (_arrayMaKH.Count > 0)
-                {
-                    using (var frm = new frmDownloadFullYear(_arrayMaKH, accountService))
-                    {
-                        frm.ShowDialog();
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("import file excel truoc de co ma khach hang");
-                }
+                using (var frm = new frmDownloadFullYear(_arrayMaKH, accountService))
+                frm.ShowDialog();
             }
             catch (Exception ex)
             {
