@@ -226,7 +226,6 @@
     <Compile Include="Services\InvoiceService.cs" />
     <Compile Include="Services\LicenseService.cs" />
     <Compile Include="Services\MachineService.cs" />
-    <Compile Include="Services\MousePositionHelper.cs" />
     <EmbeddedResource Include="frmDownload.resx">
       <DependentUpon>frmDownload.cs</DependentUpon>
     </EmbeddedResource>

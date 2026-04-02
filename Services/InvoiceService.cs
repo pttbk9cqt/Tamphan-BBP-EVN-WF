@@ -64,15 +64,6 @@ namespace Tamphan_BBP_EVN_WF.Services
 
                 int row = 2;
 
-                //foreach (dynamic item in list)
-                //{
-                //    ws.Cell(row, 1).Value = item.stt;
-                //    ws.Cell(row, 2).Value = item.maKH;
-                //    ws.Cell(row, 3).Value = item.idHoaDon;
-                //    ws.Cell(row, 4).Value = item.kyHieu;
-                //    ws.Cell(row, 5).Value = item.tongTien;
-                //    row++;
-                //}
                 foreach (dynamic item in list)
                 {
                     string maKH_item = item.maKH;
@@ -80,11 +71,23 @@ namespace Tamphan_BBP_EVN_WF.Services
                     var acc = _accountService.GetAccount(maKH_item);
                     string mucDich = acc?.MucDichSuDung ?? "";
 
+                    // convert tiền
+                    string raw = item.tongTien;
+                    string cleaned = raw
+                        .Replace(".", "")
+                        .Replace(",", "")
+                        .Replace("đ", "")
+                        .Trim();
+
+                    decimal.TryParse(cleaned, out decimal money);
+
+
                     ws.Cell(row, 1).Value = item.stt;
                     ws.Cell(row, 2).Value = item.maKH;
                     ws.Cell(row, 3).Value = item.idHoaDon;
                     ws.Cell(row, 4).Value = item.kyHieu;
-                    ws.Cell(row, 5).Value = item.tongTien;
+                    //ws.Cell(row, 5).Value = item.tongTien;
+                    ws.Cell(row, 5).Value = money;
                     ws.Cell(row, 6).Value = mucDich;
 
                     row++;
