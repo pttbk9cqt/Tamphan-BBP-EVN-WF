@@ -40,7 +40,7 @@ namespace Tamphan_BBP_EVN_WF
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownloadfullyear, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownloadfullyear);
+            _invoiceService = new InvoiceService(chromiumdownloadfullyear, _accountService);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
         ///

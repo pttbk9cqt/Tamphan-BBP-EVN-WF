@@ -12,9 +12,11 @@ namespace Tamphan_BBP_EVN_WF.Services
     public class InvoiceService
     {
         private ChromiumWebBrowser _browser;
-        public InvoiceService(ChromiumWebBrowser browser)
+        private AccountService _accountService;
+        public InvoiceService(ChromiumWebBrowser browser, AccountService accountService)
         {
             _browser = browser;
+            _accountService = accountService;
         }
 
         public async Task<List<dynamic>> GetInvoicesAsync()
@@ -58,16 +60,33 @@ namespace Tamphan_BBP_EVN_WF.Services
                 ws.Cell(1, 3).Value = "ID Hóa Đơn";
                 ws.Cell(1, 4).Value = "Ký Hiệu";
                 ws.Cell(1, 5).Value = "Tổng Tiền";
+                ws.Cell(1, 6).Value = "Mục đích sử dụng";
 
                 int row = 2;
 
+                //foreach (dynamic item in list)
+                //{
+                //    ws.Cell(row, 1).Value = item.stt;
+                //    ws.Cell(row, 2).Value = item.maKH;
+                //    ws.Cell(row, 3).Value = item.idHoaDon;
+                //    ws.Cell(row, 4).Value = item.kyHieu;
+                //    ws.Cell(row, 5).Value = item.tongTien;
+                //    row++;
+                //}
                 foreach (dynamic item in list)
                 {
+                    string maKH_item = item.maKH;
+
+                    var acc = _accountService.GetAccount(maKH_item);
+                    string mucDich = acc?.MucDichSuDung ?? "";
+
                     ws.Cell(row, 1).Value = item.stt;
                     ws.Cell(row, 2).Value = item.maKH;
                     ws.Cell(row, 3).Value = item.idHoaDon;
                     ws.Cell(row, 4).Value = item.kyHieu;
                     ws.Cell(row, 5).Value = item.tongTien;
+                    ws.Cell(row, 6).Value = mucDich;
+
                     row++;
                 }
                 // Format + tiện ích

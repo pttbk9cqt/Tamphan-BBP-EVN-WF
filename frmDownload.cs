@@ -31,6 +31,7 @@ namespace Tamphan_BBP_EVN_WF
         private bool _downloadSingleOnly;
         private HashSet<string> _allowedMaKH;
         public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
+        private List<dynamic> _downloadedInvoices = new List<dynamic>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
         {
@@ -43,7 +44,7 @@ namespace Tamphan_BBP_EVN_WF
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownload);
+            _invoiceService = new InvoiceService(chromiumdownload, _accountService);
             _mode = "single";
         }
         public frmDownload(List<string> arrayMaKH, AccountService accountService)
@@ -55,7 +56,7 @@ namespace Tamphan_BBP_EVN_WF
             this.WindowState = FormWindowState.Maximized;
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
-            _invoiceService = new InvoiceService(chromiumdownload);
+            _invoiceService = new InvoiceService(chromiumdownload, _accountService);
             _mode = "all";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +141,11 @@ namespace Tamphan_BBP_EVN_WF
                     await Task.Delay(1500);
                 }
                 await Task.Delay(500);
-                this.Invoke(new Action(() => { this.Close(); }));//xong roi thi close form
+                this.Invoke(new Action(() =>
+                {
+                    ExportFinalExcel();
+                    this.Close();
+                }));//xong roi thi close form
             }
             else
             {
@@ -255,8 +260,14 @@ namespace Tamphan_BBP_EVN_WF
                 else if (!_arrayInvoiceID_Downloaded.Contains(idHoaDon))
                 {
                     _arrayInvoiceID_Downloaded.Add(idHoaDon);
+                    // thêm vào đoạn dưới này để Lưu luôn invoice
+                    var invoiceSaved = list_invoiceInWeb.FirstOrDefault(x => x.idHoaDon == idHoaDon);
+                    if (invoiceSaved != null)
+                    {
+                        _downloadedInvoices.Add(invoiceSaved);
+                    }
                 }
-                await Task.Delay(1000); // buffer nhỏ cho chắc
+                await Task.Delay(1000);
 
             }
         }
@@ -358,6 +369,23 @@ namespace Tamphan_BBP_EVN_WF
             MessageBox.Show($"Xuất Excel thành công:\n{path}");
         }
 
+        // =================================================
+        //     hàm này để export file excel tổng hợp tất cả các hóa đơn đã tải về
+        // =================================================
+
+        private void ExportFinalExcel()
+        {
+            if (_downloadedInvoices.Count == 0)
+            {
+                MessageBox.Show("Không có hóa đơn nào để export");
+                return;
+            }
+
+            _invoiceService = new InvoiceService(chromiumdownload, _accountService);
+            string path = _invoiceService.ExportInvoiceToExcel(_downloadedInvoices, "ALL");
+
+            MessageBox.Show($"Đã xuất file tổng:\n{path}");
+        }
         /// Hàm lấy vị trí nút download
         private Point GetPoinDownloadButton()
         {
