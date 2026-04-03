@@ -422,6 +422,7 @@ namespace Tamphan_BBP_EVN_WF
             {
                 return new Point(1350, 165); //MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace + "\r\nSet mac dinh");
             }
+            //done
         }
     }
 }
