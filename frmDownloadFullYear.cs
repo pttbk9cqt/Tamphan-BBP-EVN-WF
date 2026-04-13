@@ -346,7 +346,7 @@ namespace Tamphan_BBP_EVN_WF
                     dynamic result = response.Result;
                     double x = result.x;
                     double y = result.y;
-                    return new Point(Convert.ToInt32(x) - 96, Convert.ToInt32(y) + 28);
+                    return new Point(Convert.ToInt32(x) - 102, Convert.ToInt32(y) + 28);
                 }
                 else
                 {
