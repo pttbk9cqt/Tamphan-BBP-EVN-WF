@@ -415,19 +415,17 @@ namespace Tamphan_BBP_EVN_WF
                     double x = result.x;
                     double y = result.y;
 
-                    //return new Point(Convert.ToInt32(x) - 96, Convert.ToInt32(y) + 28);
                     return new Point(Convert.ToInt32(x) - 102, Convert.ToInt32(y) + 28);
                 }
                 else
                 {
-                    return new Point(1350, 165); //MessageBox.Show("khong tim thay vi tri nut download, set mac dinh");
+                    return new Point(1350, 165); 
                 }
             }
             catch (Exception)
             {
-                return new Point(1350, 165); //MessageBox.Show(ex.Message + "\r\n" + ex.StackTrace + "\r\nSet mac dinh");
+                return new Point(1350, 165); 
             }
-            //done
         }
     }
 }

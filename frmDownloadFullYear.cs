@@ -15,11 +15,8 @@ namespace Tamphan_BBP_EVN_WF
 {
     public partial class frmDownloadFullYear : Form
     {
-        string _mode = "";
         private string url = "https://cskh.evnspc.vn/TaiKhoan/DangNhap?previousLink=/TraCuu/HoaDonTienDien";
-        private string _maKH;
         private List<string> _arrMaKH = new List<string>();
-        private AccountEVN _account;
         private CaptchaHelper captchaHelper;
         private AccountService _accountService;
         private InvoiceService _invoiceService;
@@ -28,8 +25,6 @@ namespace Tamphan_BBP_EVN_WF
         private bool _loginProcessStarted = false;
         private TaskCompletionSource<bool> _downloadCompleted;
         public bool IsCompleted { get; private set; } = false;
-        private bool _downloadSingleOnly;
-        private HashSet<string> _allowedMaKH;
         public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmDownloadFullYear(List<string> arrayMaKH, AccountService accountService)
