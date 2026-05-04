@@ -32,7 +32,6 @@ namespace Tamphan_BBP_EVN_WF
         private HashSet<string> _allowedMaKH;
         public List<(string maKH, string mucDich)> FailedInvoices { get; private set; } = new List<(string, string)>();
         private List<dynamic> _downloadedInvoices = new List<dynamic>();
-        private DrawCircleService _drawCircle;
         ////////////////////////////////////////////////////////////////////////////////////////////////
         public frmDownload(string maKH, AccountService accountService, bool downloadSingleOnly, List<string> allowedMaKH = null)
         {
@@ -46,7 +45,6 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload, _accountService);
-            _drawCircle = new DrawCircleService(chromiumdownload);
             _mode = "single";
         }
         public frmDownload(List<string> arrayMaKH, AccountService accountService)
@@ -59,7 +57,6 @@ namespace Tamphan_BBP_EVN_WF
             InitBrowser();
             captchaHelper = new CaptchaHelper(chromiumdownload, "imgCaptcha");
             _invoiceService = new InvoiceService(chromiumdownload, _accountService);
-            _drawCircle = new DrawCircleService(chromiumdownload);
             _mode = "all";
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +236,6 @@ namespace Tamphan_BBP_EVN_WF
                 await Task.Delay(3000); // đợi nút download render
                 //lay vi tri nut download
                 Point pointDownload = GetPoinDownloadButton();
-                _drawCircle.DrawCircle(pointDownload.X, pointDownload.Y);
                 // click vào nút download
                 chromiumdownload.GetBrowser().GetHost().SendMouseClickEvent(pointDownload.X, pointDownload.Y, MouseButtonType.Left, false, 1, CefEventFlags.None);
                 await Task.Delay(100);

@@ -223,7 +223,6 @@
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\BlobPdfDownloadHandler.cs" />
     <Compile Include="Services\CaptchaHelper.cs" />
-    <Compile Include="Services\DrawCircleService.cs" />
     <Compile Include="Services\InvoiceService.cs" />
     <Compile Include="Services\LicenseService.cs" />
     <Compile Include="Services\MachineService.cs" />

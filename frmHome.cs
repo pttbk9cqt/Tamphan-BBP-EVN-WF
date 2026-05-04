@@ -27,7 +27,7 @@ namespace Tamphan_BBP_EVN_WF
             this.FormClosed += Home_FormClosed;
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        private void Home_Load(object sender, EventArgs e)
+        private void frmHome_Load(object sender, EventArgs e)
         {
             // Load toàn bộ Excel vào RAM ngay khi mở Form
             accountService.LoadAccounts();
@@ -201,7 +201,7 @@ namespace Tamphan_BBP_EVN_WF
                     dgvFrmHome.DataSource = table.DefaultView.ToTable(false, table.Columns[0].ColumnName, table.Columns[4].ColumnName, table.Columns[5].ColumnName, table.Columns[6].ColumnName, table.Columns[7].ColumnName, table.Columns[8].ColumnName, table.Columns[10].ColumnName);//chỉ hiện thị các column cần thiết, bỏ qua các cột đã hide, nếu unhide toàn bộ sheet thì STT là cols thứ 0, và Bên phụ trách là cols thứ 4, tương tự về sau
                     dgvFrmHome.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                     //
-                    List<string> valuesKH = table.AsEnumerable().Select(row => row["Mã Khách hàng"].ToString()).ToList();
+                    List<string> valuesKH = table.AsEnumerable().Where(row => !string.IsNullOrEmpty(row["Mã Khách hàng"].ToString())).Select(row => row["Mã Khách hàng"].ToString()).ToList();
                     _arrayMaKH = valuesKH;
                 }
             }
@@ -223,7 +223,8 @@ namespace Tamphan_BBP_EVN_WF
 
             foreach (var acc in list)
             {
-                table.Rows.Add(acc.Id, acc.Username, acc.Password, acc.MaKH, acc.MucDichSuDung);
+                if (!string.IsNullOrEmpty(acc.MaKH))
+                    table.Rows.Add(acc.Id, acc.Username, acc.Password, acc.MaKH, acc.MucDichSuDung);
             }
 
             dgvFrmHome.DataSource = table;
